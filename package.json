@@ -1,0 +1,23 @@
+{
+  "name": "interviewos",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "dev:backend": "cd apps/backend && uvicorn app.main:app --reload --host 0.0.0.0 --port 8000",
+    "dev:all": "concurrently \"pnpm dev\" \"pnpm dev:backend\"",
+    "build": "pnpm --filter frontend build",
+    "lint": "pnpm --filter frontend lint",
+    "type-check": "pnpm --filter frontend tsc --noEmit",
+    "clean": "pnpm -r exec rm -rf node_modules .next dist .turbo",
+    "docker:up": "docker compose -f docker/docker-compose.yml up --build",
+    "docker:down": "docker compose -f docker/docker-compose.yml down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  },
+  "packageManager": "pnpm@9.15.0"
+}
