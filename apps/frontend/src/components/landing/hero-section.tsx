@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollIndicator } from "@/components/ui/section";
 import { ArrowRightIcon, PlayIcon } from "@/components/ui/icons";
@@ -9,6 +10,7 @@ export function HeroSection() {
   return (
     <section
       id="hero"
+      aria-label="Hero"
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden"
     >
       {/* Content */}
@@ -80,10 +82,12 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.5, duration: 0.8 }}
         >
-          <Button size="lg" variant="glow">
-            Launch InterviewOS
-            <ArrowRightIcon size={18} />
-          </Button>
+          <Link href="/boot">
+            <Button size="lg" variant="glow">
+              Launch InterviewOS
+              <ArrowRightIcon size={18} />
+            </Button>
+          </Link>
           <Button size="lg" variant="secondary">
             <PlayIcon size={16} />
             Watch Demo

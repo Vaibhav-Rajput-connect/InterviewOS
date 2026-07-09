@@ -58,7 +58,7 @@ function TimelineItem({ title, description, index, isLeft }: TimelineItemProps) 
 
       {/* Content */}
       <div className={`md:w-1/2 ${isLeft ? "md:pr-12 md:text-right" : "md:pl-12"}`}>
-        <div className="rounded-2xl bg-white/[0.04] backdrop-blur-sm border border-white/[0.08] p-6 hover:bg-white/[0.07] hover:border-white/[0.15] transition-all duration-500">
+        <div className="rounded-2xl bg-white/[0.04] backdrop-blur-md border border-white/[0.08] p-6 hover:bg-white/[0.07] hover:border-white/[0.15] transition-all duration-500">
           <span className="inline-block text-xs font-mono text-red-400 mb-2">
             {String(index + 1).padStart(2, "0")}
           </span>

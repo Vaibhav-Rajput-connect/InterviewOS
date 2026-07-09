@@ -3,7 +3,7 @@ import { LogoIcon } from "@/components/ui/icons";
 
 export function Footer() {
   return (
-    <footer className="relative border-t border-white/[0.06]">
+    <footer className="relative border-t border-white/[0.06] bg-[#050816]/80 backdrop-blur-xl">
       {/* Top glow line */}
       <div className="absolute top-0 left-1/4 right-1/4 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" aria-hidden="true" />
 
@@ -18,7 +18,7 @@ export function Footer() {
           </div>
 
           {/* Links */}
-          <nav className="flex items-center gap-6">
+          <nav className="flex items-center gap-6" aria-label="Footer navigation">
             {NAV_LINKS.map((link) => (
               <a
                 key={link.href}

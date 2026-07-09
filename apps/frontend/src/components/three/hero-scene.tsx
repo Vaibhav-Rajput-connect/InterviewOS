@@ -23,7 +23,7 @@ export function HeroScene() {
 function SceneFallback() {
   return (
     <div className="absolute inset-0 flex items-center justify-center">
-      <div className="h-32 w-32 rounded-full bg-blue-500/10 animate-pulse-glow" />
+      <div className="h-32 w-32 rounded-full bg-red-500/10 animate-pulse-glow" />
     </div>
   );
 }

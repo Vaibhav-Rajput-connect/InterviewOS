@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Syne } from "next/font/google";
 import { LenisProvider } from "@/providers/lenis-provider";
 import { QueryProvider } from "@/providers/query-provider";
+import { ToastContainer } from "@/components/ui/toast";
 import "./globals.css";
 
 const inter = Inter({
@@ -65,8 +66,17 @@ export default function RootLayout({
       className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} antialiased`}
     >
       <body className="min-h-screen bg-[#050816] text-slate-100 font-sans">
+        <a
+          href="#main-content"
+          className="skip-link"
+        >
+          Skip to main content
+        </a>
         <QueryProvider>
-          <LenisProvider>{children}</LenisProvider>
+          <LenisProvider>
+            {children}
+            <ToastContainer />
+          </LenisProvider>
         </QueryProvider>
       </body>
     </html>

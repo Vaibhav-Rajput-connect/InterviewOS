@@ -19,7 +19,12 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "InterviewOS"
     ENVIRONMENT: str = "development"
     LOG_LEVEL: str = "INFO"
+    SECRET_KEY: str = "CHANGE-ME-IN-PRODUCTION"
 
+    # Google OAuth
+    GOOGLE_CLIENT_ID: str = ""
+    GOOGLE_CLIENT_SECRET: str = ""
+    
     # API
     API_V1_PREFIX: str = "/api/v1"
 

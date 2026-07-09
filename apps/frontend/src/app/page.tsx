@@ -7,7 +7,7 @@ import { HeroScene } from "@/components/three/hero-scene";
 
 export default function LandingPage() {
   return (
-    <main className="relative">
+    <main id="main-content" className="relative">
       <div className="aurora fixed inset-0 -z-20" aria-hidden="true" />
       <HeroScene />
       <Navbar />

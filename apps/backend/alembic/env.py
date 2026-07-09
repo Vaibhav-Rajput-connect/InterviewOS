@@ -13,10 +13,14 @@ from alembic import context
 from app.db.base import Base
 
 # Import all models so they are registered with Base.metadata
-from app.models import User, Resume, Interview, Question, Answer  # noqa: F401
+from app.models import User, Resume, Interview, Question, Answer, Session, VerificationToken, Profile  # noqa: F401
+from app.core.config import settings
 
 # Alembic Config object
 config = context.config
+
+# Override sqlalchemy.url with the one from our environment settings
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 # Interpret the config file for Python logging
 if config.config_file_name is not None:

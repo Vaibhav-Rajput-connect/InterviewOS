@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { NAV_LINKS } from "@/lib/constants";
@@ -33,7 +34,7 @@ export function Navbar() {
       initial="hidden"
       animate="visible"
     >
-      <nav className="mx-auto max-w-7xl px-6 lg:px-8">
+      <nav className="mx-auto max-w-7xl px-6 lg:px-8" aria-label="Main navigation">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <a href="#" className="flex items-center gap-2 group">
@@ -58,15 +59,18 @@ export function Navbar() {
 
           {/* CTA + Mobile Menu */}
           <div className="flex items-center gap-3">
-            <Button size="sm" className="hidden sm:inline-flex">
-              Launch App
-            </Button>
+            <Link href="/boot">
+              <Button size="sm" className="hidden sm:inline-flex">
+                Launch App
+              </Button>
+            </Link>
 
             {/* Mobile menu toggle */}
             <button
               className="md:hidden p-2 text-slate-400 hover:text-white transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? <XIcon size={20} /> : <MenuIcon size={20} />}
             </button>
@@ -96,9 +100,11 @@ export function Navbar() {
                 </a>
               ))}
               <div className="pt-3">
-                <Button size="md" className="w-full">
-                  Launch App
-                </Button>
+                <Link href="/boot" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Button size="md" className="w-full">
+                    Launch App
+                  </Button>
+                </Link>
               </div>
             </div>
           </motion.div>

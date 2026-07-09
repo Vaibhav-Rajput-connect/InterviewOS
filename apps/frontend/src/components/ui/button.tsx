@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
@@ -50,12 +50,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
-    const buttonRef = useRef<HTMLButtonElement>(null);
-    const resolvedRef = (ref as React.RefObject<HTMLButtonElement>) || buttonRef;
-
     return (
       <motion.button
-        ref={resolvedRef}
+        ref={ref}
         className={cn(
           "relative inline-flex items-center justify-center gap-2 font-medium rounded-xl transition-all duration-300 cursor-pointer overflow-hidden",
           buttonVariants[variant],

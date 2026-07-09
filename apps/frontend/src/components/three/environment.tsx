@@ -35,6 +35,27 @@ export function FloatingParticles() {
     return geo;
   }, [positions]);
 
+  const material = useMemo(
+    () =>
+      new THREE.PointsMaterial({
+        size: 0.015,
+        color: "#f43f5e",
+        transparent: true,
+        opacity: 0.4,
+        sizeAttenuation: true,
+        depthWrite: false,
+      }),
+    []
+  );
+
+  // Dispose geometry and material on unmount
+  useEffect(() => {
+    return () => {
+      geometry.dispose();
+      material.dispose();
+    };
+  }, [geometry, material]);
+
   useFrame(() => {
     if (!ref.current) return;
     const posAttr = ref.current.geometry.getAttribute("position") as THREE.BufferAttribute;
@@ -49,16 +70,7 @@ export function FloatingParticles() {
   });
 
   return (
-    <points ref={ref} geometry={geometry}>
-      <pointsMaterial
-        size={0.015}
-        color="#f43f5e"
-        transparent
-        opacity={0.4}
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
+    <points ref={ref} geometry={geometry} material={material} />
   );
 }
 
@@ -83,11 +95,26 @@ export function StarField() {
     return geo;
   }, []);
 
+  const material = useMemo(
+    () =>
+      new THREE.PointsMaterial({
+        size: 0.03,
+        color: "#e2e8f0",
+        transparent: true,
+        opacity: 0.6,
+        sizeAttenuation: true,
+        depthWrite: false,
+      }),
+    []
+  );
+
+  // Dispose geometry and material on unmount
   useEffect(() => {
     return () => {
       geometry.dispose();
+      material.dispose();
     };
-  }, [geometry]);
+  }, [geometry, material]);
 
   useFrame((_, delta) => {
     if (!ref.current) return;
@@ -95,16 +122,7 @@ export function StarField() {
   });
 
   return (
-    <points ref={ref} geometry={geometry}>
-      <pointsMaterial
-        size={0.03}
-        color="#e2e8f0"
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
+    <points ref={ref} geometry={geometry} material={material} />
   );
 }
 
