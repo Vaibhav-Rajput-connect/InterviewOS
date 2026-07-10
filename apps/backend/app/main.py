@@ -7,6 +7,7 @@ from collections.abc import AsyncGenerator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 
 from app.core.config import settings
 from app.core.logging import setup_logging
@@ -51,6 +52,9 @@ def create_app() -> FastAPI:
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["*"],
     )
+
+    # Session Middleware (Required for Authlib OAuth)
+    app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
 
     # API Routes
     app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)

@@ -18,13 +18,14 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   
-  // Dummy state for UI purposes
   const [data, setData] = useState({
     role: "",
     experience: "",
     targetCompany: "",
     languages: "",
+    interviewTypes: [] as string[],
   });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const nextStep = () => {
     if (currentStep === ONBOARDING_STEPS.length - 1) {
@@ -122,7 +123,17 @@ export default function OnboardingPage() {
                 />
                 <div className="flex flex-wrap gap-2 mt-4">
                   {["React", "Python", "Node.js", "Go", "AWS"].map(tech => (
-                    <span key={tech} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 cursor-pointer">
+                    <span 
+                      key={tech} 
+                      className="relative z-10 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 cursor-pointer"
+                      onClick={() => {
+                        if (!data.languages) {
+                          setData({...data, languages: tech});
+                        } else if (!data.languages.includes(tech)) {
+                          setData({...data, languages: data.languages + ", " + tech});
+                        }
+                      }}
+                    >
                       + {tech}
                     </span>
                   ))}
@@ -145,11 +156,24 @@ export default function OnboardingPage() {
                   onChange={e => setData({...data, targetCompany: e.target.value})}
                 />
                 <div className="grid grid-cols-2 gap-4 mt-6">
-                  {["System Design", "Algorithms", "Behavioral", "Frontend"].map(type => (
-                    <div key={type} className="p-4 rounded-xl border border-white/10 hover:border-red-500/50 hover:bg-red-500/5 cursor-pointer transition-colors text-center text-sm text-slate-300">
-                      {type}
-                    </div>
-                  ))}
+                  {["System Design", "Algorithms", "Behavioral", "Frontend"].map(type => {
+                    const isSelected = data.interviewTypes.includes(type);
+                    return (
+                      <div 
+                        key={type} 
+                        className={`relative z-10 p-4 rounded-xl border cursor-pointer transition-colors text-center text-sm ${isSelected ? 'border-red-500 bg-red-500/10 text-white' : 'border-white/10 hover:border-red-500/50 hover:bg-red-500/5 text-slate-300'}`}
+                        onClick={() => {
+                          if (isSelected) {
+                            setData({ ...data, interviewTypes: data.interviewTypes.filter(t => t !== type) });
+                          } else {
+                            setData({ ...data, interviewTypes: [...data.interviewTypes, type] });
+                          }
+                        }}
+                      >
+                        {type}
+                      </div>
+                    );
+                  })}
                 </div>
               </motion.div>
             )}
@@ -160,16 +184,46 @@ export default function OnboardingPage() {
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
-                className="flex flex-col items-center justify-center py-10"
+                className="flex flex-col items-center justify-center py-10 relative z-10"
               >
-                <div className="w-24 h-24 rounded-full border-2 border-dashed border-red-500/50 flex items-center justify-center mb-6 bg-red-500/5 hover:bg-red-500/10 transition-colors cursor-pointer group">
+                <input 
+                  type="file" 
+                  id="resume-upload" 
+                  className="hidden" 
+                  accept=".pdf"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      setSelectedFile(e.target.files[0]);
+                    }
+                  }}
+                />
+                <label 
+                  htmlFor="resume-upload"
+                  className="w-24 h-24 rounded-full border-2 border-dashed border-red-500/50 flex flex-col items-center justify-center mb-6 bg-red-500/5 hover:bg-red-500/10 transition-colors cursor-pointer group"
+                >
                   <UploadCloud className="text-red-400 group-hover:scale-110 transition-transform" size={32} />
-                </div>
-                <h2 className="text-xl text-white font-medium mb-2">Ingest Resume Data</h2>
-                <p className="text-slate-400 text-sm text-center max-w-sm">
-                  Upload your PDF resume. Our Neural Core will automatically parse and configure your interview environment.
+                </label>
+                
+                {selectedFile ? (
+                  <div className="flex flex-col items-center mb-4">
+                    <p className="text-white font-medium">{selectedFile.name}</p>
+                    <p className="text-green-400 text-xs mt-1">Ready for parsing</p>
+                  </div>
+                ) : (
+                  <>
+                    <h2 className="text-xl text-white font-medium mb-2">Ingest Resume Data</h2>
+                    <p className="text-slate-400 text-sm text-center max-w-sm">
+                      Upload your PDF resume. Our Neural Core will automatically parse and configure your interview environment.
+                    </p>
+                  </>
+                )}
+                
+                <p 
+                  className="text-xs text-slate-500 mt-6 cursor-pointer hover:text-white transition-colors"
+                  onClick={nextStep}
+                >
+                  Skip for now
                 </p>
-                <p className="text-xs text-slate-500 mt-6 cursor-pointer hover:text-white transition-colors">Skip for now</p>
               </motion.div>
             )}
 

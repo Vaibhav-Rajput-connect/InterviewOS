@@ -31,11 +31,13 @@ services:
     container_name: interviewos-backend
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-interviewos}:${POSTGRES_PASSWORD:-interviewos_secret}@db:5432/${POSTGRES_DB:-interviewos}
-      CORS_ORIGINS: '["http://localhost:3000"]'
+      CORS_ORIGINS: '["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"]'
       API_V1_PREFIX: /api/v1
       PROJECT_NAME: InterviewOS
       ENVIRONMENT: development
       LOG_LEVEL: DEBUG
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       - "8000:8000"
     depends_on:

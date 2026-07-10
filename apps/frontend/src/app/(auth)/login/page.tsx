@@ -127,13 +127,15 @@ export default function LoginPage() {
                   </div>
                 </div>
 
-                <Button 
-                  type="button" 
-                  variant="secondary" 
-                  className="w-full py-3"
-                >
-                  Connect with Google Nexus
-                </Button>
+                <Link href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1"}/auth/google/login`} className="w-full block">
+                  <Button 
+                    type="button" 
+                    variant="secondary" 
+                    className="w-full py-3"
+                  >
+                    Connect with Google Nexus
+                  </Button>
+                </Link>
               </form>
 
               <p className="text-center text-sm text-slate-400 mt-8">

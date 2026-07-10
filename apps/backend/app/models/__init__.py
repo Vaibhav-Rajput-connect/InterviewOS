@@ -2,15 +2,28 @@
 Models package — import all models to register them with SQLAlchemy.
 """
 
-from app.models.user import User
-from app.models.resume import Resume
-from app.models.interview import Interview
-from app.models.question import Question
-from app.models.answer import Answer
-from app.models.auth import Session, VerificationToken
-from app.models.profile import Profile
+from .user import User
+from .profile import Profile
+from .resume import Resume
+from .interview import Interview
+from .question import Question
+from .answer import Answer
+from .auth import Session, VerificationToken
+from .activity import ActivityLog, Notification
+from .gamification import Achievement, DailyGoal, UserStats
 
 __all__ = [
-    "User", "Resume", "Interview", "Question", "Answer",
-    "Session", "VerificationToken", "Profile"
+    "User",
+    "Profile",
+    "Resume",
+    "Interview",
+    "Question",
+    "Answer",
+    "Session",
+    "VerificationToken",
+    "ActivityLog",
+    "Notification",
+    "Achievement",
+    "DailyGoal",
+    "UserStats"
 ]

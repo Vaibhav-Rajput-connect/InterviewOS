@@ -3,6 +3,7 @@ Pydantic schemas for authentication.
 """
 
 from typing import Optional
+import uuid
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -20,7 +21,7 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: str
+    id: uuid.UUID
     email: EmailStr
     full_name: str
     avatar_url: Optional[str] = None

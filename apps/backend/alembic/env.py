@@ -13,7 +13,7 @@ from alembic import context
 from app.db.base import Base
 
 # Import all models so they are registered with Base.metadata
-from app.models import User, Resume, Interview, Question, Answer, Session, VerificationToken, Profile  # noqa: F401
+from app.models import User, Resume, Interview, Question, Answer, Session, VerificationToken, Profile, ActivityLog, Notification, Achievement, DailyGoal, UserStats  # noqa: F401
 from app.core.config import settings
 
 # Alembic Config object
