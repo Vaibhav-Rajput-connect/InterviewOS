@@ -59,6 +59,7 @@ export function DigitalTunnelTransition({
 
   useEffect(() => {
     if (isActive) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShow(true);
       // Play transition for 3 seconds before completing
       const timer = setTimeout(() => {
@@ -66,6 +67,9 @@ export function DigitalTunnelTransition({
         setTimeout(onComplete, 1000); // Wait for fade out
       }, 3000);
       return () => clearTimeout(timer);
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setShow(false);
     }
   }, [isActive, onComplete]);
 

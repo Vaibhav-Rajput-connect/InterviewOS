@@ -118,7 +118,7 @@ export function ResumeScanner() {
 }
 
 // Minimal placeholder
-function FileTextIcon(props: any) {
+function FileTextIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

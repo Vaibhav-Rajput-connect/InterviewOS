@@ -9,6 +9,9 @@ class UserStatsResponse(BaseModel):
     readiness_score: float
     coding_progress: float
 
+    class Config:
+        from_attributes = True
+
 class ActivityLogResponse(BaseModel):
     id: str
     action: str
@@ -46,3 +49,6 @@ class DashboardOverviewResponse(BaseModel):
     stats: UserStatsResponse
     recent_activity: List[ActivityLogResponse]
     goals: List[DailyGoalResponse]
+
+    class Config:
+        from_attributes = True

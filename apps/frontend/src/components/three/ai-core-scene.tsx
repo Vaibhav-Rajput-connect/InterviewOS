@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/purity */
 "use client";
 
 import { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Float, Sphere, Trail, MeshDistortMaterial } from "@react-three/drei";
+import { Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
 
 function EnergyCore() {

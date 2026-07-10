@@ -39,8 +39,9 @@ export default function LoginPage() {
         router.push("/dashboard"); // Redirect to dashboard or onboarding if profile incomplete
       }, 1500);
       
-    } catch (err: any) {
-      setError(err.response?.data?.detail || "Authentication failed. Access denied.");
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || "Authentication failed. Access denied.");
       setIsLoading(false);
     }
   };

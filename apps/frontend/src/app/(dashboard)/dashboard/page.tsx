@@ -1,6 +1,8 @@
 "use client";
-
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { dashboardApi, DashboardOverview } from "@/lib/api/dashboard";
+import { useAuthStore } from "@/stores/auth-store";
 import { AICoreScene } from "@/components/three/ai-core-scene";
 import { StatCard } from "@/components/dashboard/widgets/stat-card";
 import { 
@@ -12,6 +14,34 @@ import {
 } from "lucide-react";
 
 export default function DashboardPage() {
+  const { user } = useAuthStore();
+  const [data, setData] = useState<DashboardOverview | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboard = async () => {
+      try {
+        const overview = await dashboardApi.getOverview();
+        setData(overview);
+      } catch (err) {
+        console.error("Failed to load dashboard data", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDashboard();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full w-full">
+        <div className="w-12 h-12 border-2 border-red-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  const stats = data?.stats;
+
   return (
     <div className="flex flex-col gap-6 h-full w-full">
       
@@ -32,7 +62,9 @@ export default function DashboardPage() {
         {/* Profile / Notifications placeholder */}
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-colors">
-            <span className="text-sm font-bold text-white">VR</span>
+            <span className="text-sm font-bold text-white">
+              {user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : "VR"}
+            </span>
           </div>
         </div>
       </motion.header>
@@ -44,7 +76,7 @@ export default function DashboardPage() {
         <div className="lg:col-span-3 flex flex-col gap-4 overflow-y-auto custom-scrollbar pr-2">
           <StatCard
             title="Readiness Score"
-            value="87%"
+            value={`${stats?.readiness_score || 0}%`}
             subtitle="Top 15% of candidates"
             icon={<TargetIcon />}
             trend={{ value: 4, isPositive: true }}
@@ -52,13 +84,13 @@ export default function DashboardPage() {
           />
           <StatCard
             title="Interview Streak"
-            value="5 Days"
+            value={`${stats?.interview_streak || 0} Days`}
             icon={<TrendingUpIcon />}
             delay={0.2}
           />
           <StatCard
             title="Experience Points"
-            value="14,200 XP"
+            value={`${stats?.xp?.toLocaleString() || 0} XP`}
             icon={<AwardIcon />}
             delay={0.3}
           />
@@ -114,20 +146,21 @@ export default function DashboardPage() {
           >
             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Daily Objectives</h3>
             <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
-                <div className="flex items-center gap-3">
-                  <TerminalIcon className="text-slate-400" size={18} />
-                  <span className="text-sm font-medium text-slate-200">Solve 2 Leetcode</span>
-                </div>
-                <span className="text-xs font-bold text-red-400">1/2</span>
-              </div>
-              <div className="flex items-center justify-between p-3 rounded-xl bg-green-500/10 border border-green-500/20">
-                <div className="flex items-center gap-3">
-                  <VideoIcon className="text-green-400" size={18} />
-                  <span className="text-sm font-medium text-green-100">Mock Interview</span>
-                </div>
-                <span className="text-xs font-bold text-green-400">Done</span>
-              </div>
+              {data?.goals && data.goals.length > 0 ? (
+                data.goals.map((goal) => (
+                  <div key={goal.id} className={`flex items-center justify-between p-3 rounded-xl border ${goal.is_completed ? 'bg-green-500/10 border-green-500/20' : 'bg-white/5 border-white/10'}`}>
+                    <div className="flex items-center gap-3">
+                      {goal.type === 'leetcode' ? <TerminalIcon className={goal.is_completed ? "text-green-400" : "text-slate-400"} size={18} /> : <VideoIcon className={goal.is_completed ? "text-green-400" : "text-slate-400"} size={18} />}
+                      <span className={`text-sm font-medium ${goal.is_completed ? "text-green-100" : "text-slate-200"}`}>{goal.title}</span>
+                    </div>
+                    <span className={`text-xs font-bold ${goal.is_completed ? "text-green-400" : "text-red-400"}`}>
+                      {goal.is_completed ? "Done" : `${goal.current_value}/${goal.target_value}`}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-slate-500">No daily objectives assigned.</p>
+              )}
             </div>
           </motion.div>
 
@@ -138,11 +171,25 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
           >
-            <div className="w-12 h-12 rounded-full border border-dashed border-slate-600 flex items-center justify-center mb-3">
-              <ClockIcon className="text-slate-500" size={20} />
-            </div>
-            <h3 className="text-sm font-medium text-slate-300">No recent activity</h3>
-            <p className="text-xs text-slate-500 mt-1">Start a mock interview to see telemetry.</p>
+            {data?.recent_activity && data.recent_activity.length > 0 ? (
+              <div className="w-full h-full flex flex-col items-start gap-4">
+                <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Recent Activity</h3>
+                {data.recent_activity.slice(0, 3).map((activity) => (
+                  <div key={activity.id} className="flex flex-col text-left border-l border-white/10 pl-4 py-1">
+                    <span className="text-sm font-medium text-slate-200">{activity.title}</span>
+                    <span className="text-xs text-slate-500">{new Date(activity.created_at).toLocaleDateString()}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="w-12 h-12 rounded-full border border-dashed border-slate-600 flex items-center justify-center mb-3">
+                  <ClockIcon className="text-slate-500" size={20} />
+                </div>
+                <h3 className="text-sm font-medium text-slate-300">No recent activity</h3>
+                <p className="text-xs text-slate-500 mt-1">Start a mock interview to see telemetry.</p>
+              </>
+            )}
           </motion.div>
 
         </div>
@@ -152,13 +199,13 @@ export default function DashboardPage() {
 }
 
 // Temporary icon to avoid import error above
-function BrainCircuitIcon(props: any) {
+function BrainCircuitIcon({ size = 24, ...props }: React.SVGProps<SVGSVGElement> & { size?: number | string }) {
   return (
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -172,13 +219,13 @@ function BrainCircuitIcon(props: any) {
     </svg>
   );
 }
-function VideoIcon(props: any) {
+function VideoIcon({ size = 24, ...props }: React.SVGProps<SVGSVGElement> & { size?: number | string }) {
   return (
     <svg
       {...props}
       xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

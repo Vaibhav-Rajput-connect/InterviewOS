@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas } from "@react-three/fiber";
-import { User, Mail, Lock, ArrowRight, ArrowLeft, Briefcase, Code, Target } from "lucide-react";
+import { User, Mail, Lock, ArrowRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 import { NeuralBackground } from "@/components/three/neural-background";
@@ -82,8 +82,9 @@ export default function SignupPage() {
       // 3. Go to onboarding
       router.push("/onboard");
       
-    } catch (err: any) {
-      setError(err.response?.data?.detail || "Registration failed.");
+    } catch (err) {
+      const error = err as { response?: { data?: { detail?: string } } };
+      setError(error.response?.data?.detail || "Registration failed.");
       setIsLoading(false);
     }
   };

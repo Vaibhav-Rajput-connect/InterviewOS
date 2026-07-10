@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from authlib.integrations.starlette_client import OAuth
@@ -290,7 +291,10 @@ async def google_callback(request: Request, response: Response, db: DbSession):
     """Handle Google OAuth callback."""
     try:
         token = await oauth.google.authorize_access_token(request)
-    except Exception:
+    except Exception as e:
+        print(f"OAUTH ERROR: {e}")
+        import traceback
+        traceback.print_exc()
         raise HTTPException(status_code=400, detail="OAuth authorization failed")
         
     user_info = token.get('userinfo')
@@ -325,13 +329,11 @@ async def google_callback(request: Request, response: Response, db: DbSession):
     db.add(session)
     await db.commit()
 
-    response.set_cookie(
+    frontend_url = "http://localhost:3001" if settings.is_development else "https://interviewos.com"
+    redirect = RedirectResponse(url=f"{frontend_url}/auth/callback?token={access_token}")
+    redirect.set_cookie(
         key="refresh_token", value=refresh_token,
         httponly=True, secure=True, samesite="lax", max_age=7 * 24 * 60 * 60,
     )
-    
-    # Return token as query param to front-end (or redirect with it)
-    # For a real SPA, it's safer to redirect to a specific frontend route 
-    # e.g., redirectResponse(f"http://localhost:3000/auth/callback?token={access_token}")
-    return {"access_token": access_token, "token_type": "bearer"}
+    return redirect
 

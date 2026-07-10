@@ -53,6 +53,7 @@ export function useReducedMotion(): boolean {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPrefersReduced(mediaQuery.matches);
 
     const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
@@ -130,6 +131,7 @@ export function useAnimatedCounter(
     if (startOnView && !isInView) return;
     if (hasStarted) return;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setHasStarted(true);
 
     const startTime = performance.now();

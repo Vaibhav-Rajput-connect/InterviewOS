@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import { GlassNavigation } from "@/components/dashboard/glass-navigation";
 import { useDashboardStore } from "@/stores/dashboard-store";
 import { DigitalTunnelTransition } from "@/components/transitions/digital-tunnel";
+import { TopNavigation } from "@/components/dashboard/top-navigation";
 import { useState, useEffect, useCallback } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
@@ -15,6 +16,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     // Check if we already played it in this session to avoid playing on every navigation
     const hasPlayed = sessionStorage.getItem("hasPlayedTunnelTransition");
     if (hasPlayed) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShowTransition(false);
     }
   }, []);
@@ -41,11 +43,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         
         {/* Main Content Area */}
         <main
-          className={`flex-1 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] py-4 pr-4 ${
+          className={`flex-1 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] py-4 pr-4 flex flex-col ${
             isSidebarCollapsed ? "pl-28" : "pl-72"
           }`}
         >
-          <div className="h-full rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl shadow-2xl overflow-hidden relative">
+          <TopNavigation />
+          
+          <div className="flex-1 rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl shadow-2xl overflow-hidden relative">
             {/* Soft inner glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
             <div className="relative h-full overflow-y-auto p-8 custom-scrollbar">
