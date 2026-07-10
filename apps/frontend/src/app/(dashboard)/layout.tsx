@@ -6,10 +6,19 @@ import { useDashboardStore } from "@/stores/dashboard-store";
 import { DigitalTunnelTransition } from "@/components/transitions/digital-tunnel";
 import { TopNavigation } from "@/components/dashboard/top-navigation";
 import { useState, useEffect, useCallback } from "react";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { isSidebarCollapsed } = useDashboardStore();
+  const { fetchUser, user, isAuthenticated } = useAuthStore();
   const [showTransition, setShowTransition] = useState(true);
+
+  // Fetch user if authenticated but user data is missing
+  useEffect(() => {
+    if (isAuthenticated && !user) {
+      fetchUser();
+    }
+  }, [isAuthenticated, user, fetchUser]);
 
   // Play transition on first mount
   useEffect(() => {

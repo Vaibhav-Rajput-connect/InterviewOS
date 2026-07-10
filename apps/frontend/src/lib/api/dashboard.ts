@@ -24,7 +24,7 @@ export interface ActivityLog {
   activity_type: string;
   title: string;
   description: string;
-  metadata?: any;
+  metadata?: Record<string, unknown>;
   created_at: string;
 }
 

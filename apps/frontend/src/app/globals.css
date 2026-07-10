@@ -362,3 +362,17 @@ body {
     animation: none;
   }
 }
+
+/* ============================================
+   Light Mode (Inversion Hack)
+   ============================================ */
+
+body.light-theme {
+  filter: invert(1) hue-rotate(180deg) !important;
+  background-color: #ffffff !important;
+}
+
+body.light-theme img,
+body.light-theme video {
+  filter: invert(1) hue-rotate(180deg) !important;
+}
