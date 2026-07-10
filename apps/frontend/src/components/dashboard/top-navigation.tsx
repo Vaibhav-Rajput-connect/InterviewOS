@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, User, Command, Zap, ChevronDown, Moon, Sun, LogOut, Settings } from "lucide-react";
+import { Search, Bell, User, Command, Zap, ChevronDown, LogOut, Settings } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
 import { useNotificationStore } from "@/stores/notification-store";
 import { useRouter } from "next/navigation";
@@ -14,7 +14,6 @@ export function TopNavigation() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
   
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLButtonElement>(null);
@@ -36,34 +35,6 @@ export function TopNavigation() {
   const handleLogout = () => {
     logout();
     router.push("/login");
-  };
-
-  // Sync with document element on mount
-  useEffect(() => {
-    if (document.body.classList.contains("light-theme")) {
-      setIsDarkMode(false);
-    }
-  }, []);
-
-  const handleThemeToggle = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    
-    if (newDarkMode) {
-      document.body.classList.remove("light-theme");
-      addToast({
-        title: "Dark Mode Engaged",
-        message: "Intelligence Core operating in optimal optical parameters.",
-        type: "success",
-      });
-    } else {
-      document.body.classList.add("light-theme");
-      addToast({
-        title: "Restrictions Lifted",
-        message: "Warning: Unrestricted optical mode engaged. Sensory overload possible.",
-        type: "warning",
-      });
-    }
   };
 
   return (
@@ -101,24 +72,6 @@ export function TopNavigation() {
         <button className="flex items-center gap-2 bg-gradient-to-r from-red-500/10 to-orange-500/10 hover:from-red-500/20 hover:to-orange-500/20 border border-red-500/20 rounded-xl px-4 py-2 text-sm text-red-400 transition-colors">
           <Zap size={16} className="fill-red-400/20" />
           <span>Quick Scan</span>
-        </button>
-
-        {/* Theme Toggle */}
-        <button 
-          onClick={handleThemeToggle}
-          className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors relative overflow-hidden"
-        >
-          <AnimatePresence mode="wait">
-            {isDarkMode ? (
-              <motion.div key="moon" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                <Moon size={20} />
-              </motion.div>
-            ) : (
-              <motion.div key="sun" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }} transition={{ duration: 0.2 }}>
-                <Sun size={20} className="text-orange-400" />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </button>
 
         {/* Notifications */}
