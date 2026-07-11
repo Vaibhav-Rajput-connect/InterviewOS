@@ -81,7 +81,7 @@ async def register(user_in: UserCreate, db: DbSession) -> Any:
     await db.refresh(user)
 
     # TODO: Send verification email here using a background task
-    print(f"MOCK EMAIL: Verification link -> /verify?token={verification_token.token}")
+    logger.info(f"MOCK EMAIL: Verification link -> /verify?token={verification_token.token}")
 
     return user
 
@@ -244,7 +244,7 @@ async def forgot_password(req: PasswordResetRequest, db: DbSession) -> Any:
         await db.commit()
         
         # MOCK EMAIL
-        print(f"MOCK EMAIL: Reset link -> /reset-password?token={reset_token.token}")
+        logger.info(f"MOCK EMAIL: Reset link -> /reset-password?token={reset_token.token}")
         
     # Always return success to prevent email enumeration
     return {"message": "If an account exists, a reset link has been sent."}
@@ -292,7 +292,7 @@ async def google_callback(request: Request, response: Response, db: DbSession):
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception as e:
-        print(f"OAUTH ERROR: {e}")
+        logger.error(f"OAUTH ERROR: {e}")
         import traceback
         traceback.print_exc()
         raise HTTPException(status_code=400, detail="OAuth authorization failed")

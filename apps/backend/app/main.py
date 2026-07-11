@@ -9,8 +9,15 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 
+import uuid
+from starlette.requests import Request
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+
 from app.core.config import settings
-from app.core.logging import setup_logging
+from app.core.logging import setup_logging, request_id_var
+from app.core.rate_limit import limiter
 from app.api.v1.router import api_v1_router
 from app.db.engine import engine
 
@@ -43,6 +50,17 @@ def create_app() -> FastAPI:
         redoc_url=f"{settings.API_V1_PREFIX}/redoc",
         lifespan=lifespan,
     )
+    
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+    @app.middleware("http")
+    async def add_request_id_middleware(request: Request, call_next):
+        request_id = str(uuid.uuid4())
+        request_id_var.set(request_id)
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
 
     # CORS — restrict methods to only those we actually use
     app.add_middleware(

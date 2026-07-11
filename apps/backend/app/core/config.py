@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     
+    # Gemini AI
+    GEMINI_API_KEY: str | None = None
+    
     # API
     API_V1_PREFIX: str = "/api/v1"
 

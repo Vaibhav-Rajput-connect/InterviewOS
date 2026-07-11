@@ -3,7 +3,7 @@ services:
   # PostgreSQL Database
   # ==========================================
   db:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16
     container_name: interviewos-db
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-interviewos}
@@ -29,6 +29,8 @@ services:
       context: ../apps/backend
       dockerfile: Dockerfile
     container_name: interviewos-backend
+    env_file:
+      - ../.env
     environment:
       DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-interviewos}:${POSTGRES_PASSWORD:-interviewos_secret}@db:5432/${POSTGRES_DB:-interviewos}
       CORS_ORIGINS: '["http://localhost:3000", "http://localhost:3001", "http://127.0.0.1:3000", "http://127.0.0.1:3001"]'
@@ -36,8 +38,6 @@ services:
       PROJECT_NAME: InterviewOS
       ENVIRONMENT: development
       LOG_LEVEL: DEBUG
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
     ports:
       - "8000:8000"
     depends_on:

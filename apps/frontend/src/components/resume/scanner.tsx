@@ -2,12 +2,94 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { UploadCloudIcon, ScanLineIcon, CheckCircle2Icon } from "lucide-react";
+import { UploadCloudIcon, ScanLineIcon, CheckCircle2Icon, FileTextIcon } from "lucide-react";
+import apiClient from "@/lib/api-client";
+import { useRouter } from "next/navigation";
 
 export function ResumeScanner() {
   const [isDragging, setIsDragging] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [dataPoints, setDataPoints] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+
+  const handleFileUpload = async (file: File) => {
+    if (!file) return;
+    
+    // Validate
+    if (file.type !== "application/pdf" && !file.type.includes("wordprocessingml")) {
+      setError("Please upload a PDF or DOCX file.");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setError("File exceeds 10MB limit.");
+      return;
+    }
+    
+    setError(null);
+    setIsScanning(true);
+    
+    const formData = new FormData();
+    formData.append("file", file);
+    
+    try {
+      const res = await apiClient.post("/resume/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      
+      const data = res.data;
+      console.log("Upload successful:", data);
+      
+      if (data.data?.data_points_extracted) {
+        setDataPoints(data.data.data_points_extracted);
+      }
+      
+      // Polling for processing status
+      const pollStatus = async (id: string) => {
+        try {
+          const statusRes = await apiClient.get(`/resume/${id}/status`);
+          if (statusRes.data.status === "completed") {
+            setIsScanning(false);
+            setIsComplete(true);
+            setTimeout(() => {
+              router.push(`/resume/${id}`);
+            }, 1500); // short delay to show the completion checkmark
+          } else if (statusRes.data.status === "failed") {
+            setIsScanning(false);
+            setError("Resume parsing failed on the server.");
+          } else {
+            // Still processing
+            setTimeout(() => pollStatus(id), 2000);
+          }
+        } catch (err) {
+          console.error("Polling error", err);
+          setTimeout(() => pollStatus(id), 2000);
+        }
+      };
+      
+      pollStatus(data.data.id);
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      if (err.response?.status === 401) {
+        setError("Your session has expired. Please log in again.");
+      } else if (err.response?.data?.detail) {
+        const detail = err.response.data.detail;
+        if (typeof detail === "string") {
+          setError(detail);
+        } else if (Array.isArray(detail) && detail.length > 0) {
+          setError(detail[0].msg || JSON.stringify(detail));
+        } else {
+          setError(JSON.stringify(detail));
+        }
+      } else {
+        setError(err.message || "Failed to upload resume.");
+      }
+      setIsScanning(false);
+    }
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -23,12 +105,17 @@ export function ResumeScanner() {
     e.preventDefault();
     setIsDragging(false);
     
-    // Simulate scan
-    setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-      setIsComplete(true);
-    }, 4000);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      handleFileUpload(file);
+    }
   };
 
   return (
@@ -61,7 +148,16 @@ export function ResumeScanner() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-white mb-2">Initialize Scanner</h3>
-                <p className="text-slate-400 max-w-sm">Drag and drop your resume PDF to begin deep learning extraction.</p>
+                <p className="text-slate-400 max-w-sm mb-4">Drag and drop your resume PDF to begin deep learning extraction.</p>
+                
+                {error && (
+                  <p className="text-red-400 text-sm mb-4 bg-red-500/10 py-1 px-3 rounded-lg border border-red-500/20">{error}</p>
+                )}
+                
+                <label className="pointer-events-auto cursor-pointer inline-flex items-center justify-center px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/10 rounded-xl text-white font-medium transition-colors">
+                  <span>Browse Files</span>
+                  <input type="file" className="hidden" accept=".pdf,.docx" onChange={handleFileSelect} />
+                </label>
               </div>
             </motion.div>
           )}
@@ -107,7 +203,7 @@ export function ResumeScanner() {
               </div>
               <div className="text-center">
                 <h3 className="text-2xl font-bold text-white mb-2">Analysis Complete</h3>
-                <p className="text-green-400 font-medium">94 Data points extracted.</p>
+                <p className="text-green-400 font-medium">{dataPoints > 0 ? `${dataPoints} Data points extracted.` : "AI Extraction Complete."}</p>
               </div>
             </motion.div>
           )}
@@ -117,26 +213,4 @@ export function ResumeScanner() {
   );
 }
 
-// Minimal placeholder
-function FileTextIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="16" x2="8" y1="13" y2="13" />
-      <line x1="16" x2="8" y1="17" y2="17" />
-      <line x1="10" x2="8" y1="9" y2="9" />
-    </svg>
-  );
-}
+

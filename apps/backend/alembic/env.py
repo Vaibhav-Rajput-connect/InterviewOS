@@ -8,12 +8,20 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
-from alembic import context
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from alembic import context
 from app.db.base import Base
 
 # Import all models so they are registered with Base.metadata
-from app.models import User, Resume, Interview, Question, Answer, Session, VerificationToken, Profile, ActivityLog, Notification, Achievement, DailyGoal, UserStats  # noqa: F401
+from app.models import (
+    User, Resume, Interview, Question, Answer, Session, VerificationToken, 
+    Profile, ActivityLog, Notification, Achievement, DailyGoal, UserStats,
+    ResumeAnalysis, ResumeSection, ResumeSkill, ResumeExperience, 
+    ResumeEducation, ResumeProject, Technology, Embedding
+)  # noqa: F401
 from app.core.config import settings
 
 # Alembic Config object

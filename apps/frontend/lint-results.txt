@@ -1,0 +1,601 @@
+
+> frontend@0.1.0 lint
+> eslint
+
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/app/(auth)/login/page.tsx
+  42:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/app/(auth)/signup/page.tsx
+   7:51  warning  'Briefcase' is defined but never used     @typescript-eslint/no-unused-vars
+   7:62  warning  'Code' is defined but never used          @typescript-eslint/no-unused-vars
+   7:68  warning  'Target' is defined but never used        @typescript-eslint/no-unused-vars
+  85:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/app/(dashboard)/dashboard/page.tsx
+  155:34  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  175:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/app/(dashboard)/layout.tsx
+  19:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/app/(dashboard)/layout.tsx:19:7
+  17 |     const hasPlayed = sessionStorage.getItem("hasPlayedTunnelTransition");
+  18 |     if (hasPlayed) {
+> 19 |       setShowTransition(false);
+     |       ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  20 |     }
+  21 |   }, []);
+  22 |  react-hooks/set-state-in-effect
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/resume/scanner.tsx
+  121:30  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core-scene.tsx
+   5:25  warning  'Trail' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-unused-vars
+  75:26  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core-scene.tsx:75:26
+  73 |     const p = new Float32Array(count * 3);
+  74 |     for (let i = 0; i < count; i++) {
+> 75 |       const radius = 3 + Math.random() * 4;
+     |                          ^^^^^^^^^^^^^ Cannot call impure function
+  76 |       const theta = Math.random() * Math.PI * 2;
+  77 |       const phi = Math.acos((Math.random() * 2) - 1);
+  78 |                                                      react-hooks/purity
+  76:21  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core-scene.tsx:76:21
+  74 |     for (let i = 0; i < count; i++) {
+  75 |       const radius = 3 + Math.random() * 4;
+> 76 |       const theta = Math.random() * Math.PI * 2;
+     |                     ^^^^^^^^^^^^^ Cannot call impure function
+  77 |       const phi = Math.acos((Math.random() * 2) - 1);
+  78 |       
+  79 |       p[i * 3] = radius * Math.sin(phi) * Math.cos(theta);                                    react-hooks/purity
+  77:30  error    Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core-scene.tsx:77:30
+  75 |       const radius = 3 + Math.random() * 4;
+  76 |       const theta = Math.random() * Math.PI * 2;
+> 77 |       const phi = Math.acos((Math.random() * 2) - 1);
+     |                              ^^^^^^^^^^^^^ Cannot call impure function
+  78 |       
+  79 |       p[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+  80 |       p[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);  react-hooks/purity
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx
+  203:26  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:203:26
+  201 |   const shards = useMemo(() => {
+  202 |     return Array.from({ length: count }, () => ({
+> 203 |       orbitRadius: 2.5 + Math.random() * 1.5,
+      |                          ^^^^^^^^^^^^^ Cannot call impure function
+  204 |       orbitSpeed:
+  205 |         (Math.random() > 0.5 ? 1 : -1) * (0.1 + Math.random() * 0.3),
+  206 |       orbitPhase: Math.random() * Math.PI * 2,                        react-hooks/purity
+  205:10  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:205:10
+  203 |       orbitRadius: 2.5 + Math.random() * 1.5,
+  204 |       orbitSpeed:
+> 205 |         (Math.random() > 0.5 ? 1 : -1) * (0.1 + Math.random() * 0.3),
+      |          ^^^^^^^^^^^^^ Cannot call impure function
+  206 |       orbitPhase: Math.random() * Math.PI * 2,
+  207 |       yOffset: (Math.random() - 0.5) * 3,
+  208 |       scale: 0.1 + Math.random() * 0.2,                                         react-hooks/purity
+  205:49  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:205:49
+  203 |       orbitRadius: 2.5 + Math.random() * 1.5,
+  204 |       orbitSpeed:
+> 205 |         (Math.random() > 0.5 ? 1 : -1) * (0.1 + Math.random() * 0.3),
+      |                                                 ^^^^^^^^^^^^^ Cannot call impure function
+  206 |       orbitPhase: Math.random() * Math.PI * 2,
+  207 |       yOffset: (Math.random() - 0.5) * 3,
+  208 |       scale: 0.1 + Math.random() * 0.2,  react-hooks/purity
+  206:19  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:206:19
+  204 |       orbitSpeed:
+  205 |         (Math.random() > 0.5 ? 1 : -1) * (0.1 + Math.random() * 0.3),
+> 206 |       orbitPhase: Math.random() * Math.PI * 2,
+      |                   ^^^^^^^^^^^^^ Cannot call impure function
+  207 |       yOffset: (Math.random() - 0.5) * 3,
+  208 |       scale: 0.1 + Math.random() * 0.2,
+  209 |       tiltAxis: new THREE.Vector3(                                           react-hooks/purity
+  207:17  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:207:17
+  205 |         (Math.random() > 0.5 ? 1 : -1) * (0.1 + Math.random() * 0.3),
+  206 |       orbitPhase: Math.random() * Math.PI * 2,
+> 207 |       yOffset: (Math.random() - 0.5) * 3,
+      |                 ^^^^^^^^^^^^^ Cannot call impure function
+  208 |       scale: 0.1 + Math.random() * 0.2,
+  209 |       tiltAxis: new THREE.Vector3(
+  210 |         Math.random(),                                        react-hooks/purity
+  208:20  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:208:20
+  206 |       orbitPhase: Math.random() * Math.PI * 2,
+  207 |       yOffset: (Math.random() - 0.5) * 3,
+> 208 |       scale: 0.1 + Math.random() * 0.2,
+      |                    ^^^^^^^^^^^^^ Cannot call impure function
+  209 |       tiltAxis: new THREE.Vector3(
+  210 |         Math.random(),
+  211 |         Math.random(),                                                                                    react-hooks/purity
+  210:9   error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:210:9
+  208 |       scale: 0.1 + Math.random() * 0.2,
+  209 |       tiltAxis: new THREE.Vector3(
+> 210 |         Math.random(),
+      |         ^^^^^^^^^^^^^ Cannot call impure function
+  211 |         Math.random(),
+  212 |         Math.random()
+  213 |       ).normalize(),                                                                                                                                              react-hooks/purity
+  211:9   error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:211:9
+  209 |       tiltAxis: new THREE.Vector3(
+  210 |         Math.random(),
+> 211 |         Math.random(),
+      |         ^^^^^^^^^^^^^ Cannot call impure function
+  212 |         Math.random()
+  213 |       ).normalize(),
+  214 |       rotationSpeed: 0.5 + Math.random() * 1.5,                                                                                                                                      react-hooks/purity
+  212:9   error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:212:9
+  210 |         Math.random(),
+  211 |         Math.random(),
+> 212 |         Math.random()
+      |         ^^^^^^^^^^^^^ Cannot call impure function
+  213 |       ).normalize(),
+  214 |       rotationSpeed: 0.5 + Math.random() * 1.5,
+  215 |     }));                                                                                                                                                                react-hooks/purity
+  214:28  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:214:28
+  212 |         Math.random()
+  213 |       ).normalize(),
+> 214 |       rotationSpeed: 0.5 + Math.random() * 1.5,
+      |                            ^^^^^^^^^^^^^ Cannot call impure function
+  215 |     }));
+  216 |   }, [count]);
+  217 |                                                                                                                                                                           react-hooks/purity
+  272:26  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:272:26
+  270 |   const particles = useMemo(() => {
+  271 |     return Array.from({ length: count }, () => ({
+> 272 |       orbitRadius: 1.8 + Math.random() * 2.0,
+      |                          ^^^^^^^^^^^^^ Cannot call impure function
+  273 |       orbitSpeed: 0.2 + Math.random() * 0.5,
+  274 |       orbitPhase: Math.random() * Math.PI * 2,
+  275 |       yOffset: (Math.random() - 0.5) * 2.5,                    react-hooks/purity
+  273:25  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:273:25
+  271 |     return Array.from({ length: count }, () => ({
+  272 |       orbitRadius: 1.8 + Math.random() * 2.0,
+> 273 |       orbitSpeed: 0.2 + Math.random() * 0.5,
+      |                         ^^^^^^^^^^^^^ Cannot call impure function
+  274 |       orbitPhase: Math.random() * Math.PI * 2,
+  275 |       yOffset: (Math.random() - 0.5) * 2.5,
+  276 |       scale: 0.015 + Math.random() * 0.02,              react-hooks/purity
+  274:19  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:274:19
+  272 |       orbitRadius: 1.8 + Math.random() * 2.0,
+  273 |       orbitSpeed: 0.2 + Math.random() * 0.5,
+> 274 |       orbitPhase: Math.random() * Math.PI * 2,
+      |                   ^^^^^^^^^^^^^ Cannot call impure function
+  275 |       yOffset: (Math.random() - 0.5) * 2.5,
+  276 |       scale: 0.015 + Math.random() * 0.02,
+  277 |       tilt: Math.random() * Math.PI,                                 react-hooks/purity
+  275:17  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:275:17
+  273 |       orbitSpeed: 0.2 + Math.random() * 0.5,
+  274 |       orbitPhase: Math.random() * Math.PI * 2,
+> 275 |       yOffset: (Math.random() - 0.5) * 2.5,
+      |                 ^^^^^^^^^^^^^ Cannot call impure function
+  276 |       scale: 0.015 + Math.random() * 0.02,
+  277 |       tilt: Math.random() * Math.PI,
+  278 |     }));                                                                        react-hooks/purity
+  276:22  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:276:22
+  274 |       orbitPhase: Math.random() * Math.PI * 2,
+  275 |       yOffset: (Math.random() - 0.5) * 2.5,
+> 276 |       scale: 0.015 + Math.random() * 0.02,
+      |                      ^^^^^^^^^^^^^ Cannot call impure function
+  277 |       tilt: Math.random() * Math.PI,
+  278 |     }));
+  279 |   }, [count]);                                                                                                 react-hooks/purity
+  277:13  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/ai-core.tsx:277:13
+  275 |       yOffset: (Math.random() - 0.5) * 2.5,
+  276 |       scale: 0.015 + Math.random() * 0.02,
+> 277 |       tilt: Math.random() * Math.PI,
+      |             ^^^^^^^^^^^^^ Cannot call impure function
+  278 |     }));
+  279 |   }, [count]);
+  280 |                                                                                                                                                         react-hooks/purity
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx
+   21:21  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:21:21
+  19 |     const arr = new Float32Array(count * 3);
+  20 |     for (let i = 0; i < count; i++) {
+> 21 |       arr[i * 3] = (Math.random() - 0.5) * 20;
+     |                     ^^^^^^^^^^^^^ Cannot call impure function
+  22 |       arr[i * 3 + 1] = (Math.random() - 0.5) * 20;
+  23 |       arr[i * 3 + 2] = (Math.random() - 0.5) * 20;
+  24 |     }                                                                                                                  react-hooks/purity
+   22:25  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:22:25
+  20 |     for (let i = 0; i < count; i++) {
+  21 |       arr[i * 3] = (Math.random() - 0.5) * 20;
+> 22 |       arr[i * 3 + 1] = (Math.random() - 0.5) * 20;
+     |                         ^^^^^^^^^^^^^ Cannot call impure function
+  23 |       arr[i * 3 + 2] = (Math.random() - 0.5) * 20;
+  24 |     }
+  25 |     return arr;                                                                                                                                           react-hooks/purity
+   23:25  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:23:25
+  21 |       arr[i * 3] = (Math.random() - 0.5) * 20;
+  22 |       arr[i * 3 + 1] = (Math.random() - 0.5) * 20;
+> 23 |       arr[i * 3 + 2] = (Math.random() - 0.5) * 20;
+     |                         ^^^^^^^^^^^^^ Cannot call impure function
+  24 |     }
+  25 |     return arr;
+  26 |   }, [count]);                                                                                                                                                                  react-hooks/purity
+   29:56  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:29:56
+  27 |
+  28 |   const speeds = useMemo(() => {
+> 29 |     return Array.from({ length: count }, () => 0.001 + Math.random() * 0.003);
+     |                                                        ^^^^^^^^^^^^^ Cannot call impure function
+  30 |   }, [count]);
+  31 |
+  32 |   const geometry = useMemo(() => {                                                                                                                                                           react-hooks/purity
+   87:27  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:87:27
+  85 |     const positions = new Float32Array(SCENE_CONFIG.starCount * 3);
+  86 |     for (let i = 0; i < SCENE_CONFIG.starCount; i++) {
+> 87 |       const radius = 15 + Math.random() * 35;
+     |                           ^^^^^^^^^^^^^ Cannot call impure function
+  88 |       const theta = Math.random() * Math.PI * 2;
+  89 |       const phi = Math.acos(2 * Math.random() - 1);
+  90 |       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);         react-hooks/purity
+   88:21  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:88:21
+  86 |     for (let i = 0; i < SCENE_CONFIG.starCount; i++) {
+  87 |       const radius = 15 + Math.random() * 35;
+> 88 |       const theta = Math.random() * Math.PI * 2;
+     |                     ^^^^^^^^^^^^^ Cannot call impure function
+  89 |       const phi = Math.acos(2 * Math.random() - 1);
+  90 |       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+  91 |       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);            react-hooks/purity
+   89:33  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:89:33
+  87 |       const radius = 15 + Math.random() * 35;
+  88 |       const theta = Math.random() * Math.PI * 2;
+> 89 |       const phi = Math.acos(2 * Math.random() - 1);
+     |                                 ^^^^^^^^^^^^^ Cannot call impure function
+  90 |       positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+  91 |       positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+  92 |       positions[i * 3 + 2] = radius * Math.cos(phi);  react-hooks/purity
+  143:5   error  Error: This value cannot be modified
+
+Modifying a value previously passed as an argument to a hook is not allowed. Consider moving the modification before calling the hook.
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/environment.tsx:143:5
+  141 |
+  142 |   useFrame((_, delta) => {
+> 143 |     uniforms.uTime.value += delta;
+      |     ^^^^^^^^^^^^^^ `uniforms` cannot be modified
+  144 |   });
+  145 |
+  146 |   return (                                                                                                                                                                                                                                                                                                                                                                                                                                           react-hooks/immutability
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx
+  22:21  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:22:21
+  20 |     const vel = [];
+  21 |     for (let i = 0; i < particleCount; i++) {
+> 22 |       pos[i * 3] = (Math.random() - 0.5) * 20;
+     |                     ^^^^^^^^^^^^^ Cannot call impure function
+  23 |       pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+  24 |       pos[i * 3 + 2] = (Math.random() - 0.5) * 10 - 5;
+  25 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               react-hooks/purity
+  23:25  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:23:25
+  21 |     for (let i = 0; i < particleCount; i++) {
+  22 |       pos[i * 3] = (Math.random() - 0.5) * 20;
+> 23 |       pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+     |                         ^^^^^^^^^^^^^ Cannot call impure function
+  24 |       pos[i * 3 + 2] = (Math.random() - 0.5) * 10 - 5;
+  25 |       
+  26 |       vel.push({                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/purity
+  24:25  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:24:25
+  22 |       pos[i * 3] = (Math.random() - 0.5) * 20;
+  23 |       pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
+> 24 |       pos[i * 3 + 2] = (Math.random() - 0.5) * 10 - 5;
+     |                         ^^^^^^^^^^^^^ Cannot call impure function
+  25 |       
+  26 |       vel.push({
+  27 |         x: (Math.random() - 0.5) * 0.02,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/purity
+  27:13  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:27:13
+  25 |       
+  26 |       vel.push({
+> 27 |         x: (Math.random() - 0.5) * 0.02,
+     |             ^^^^^^^^^^^^^ Cannot call impure function
+  28 |         y: (Math.random() - 0.5) * 0.02,
+  29 |         z: (Math.random() - 0.5) * 0.02,
+  30 |       });                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     react-hooks/purity
+  28:13  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:28:13
+  26 |       vel.push({
+  27 |         x: (Math.random() - 0.5) * 0.02,
+> 28 |         y: (Math.random() - 0.5) * 0.02,
+     |             ^^^^^^^^^^^^^ Cannot call impure function
+  29 |         z: (Math.random() - 0.5) * 0.02,
+  30 |       });
+  31 |     }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      react-hooks/purity
+  29:13  error  Error: Cannot call impure function during render
+
+`Math.random` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:29:13
+  27 |         x: (Math.random() - 0.5) * 0.02,
+  28 |         y: (Math.random() - 0.5) * 0.02,
+> 29 |         z: (Math.random() - 0.5) * 0.02,
+     |             ^^^^^^^^^^^^^ Cannot call impure function
+  30 |       });
+  31 |     }
+  32 |     return { positions: pos, velocities: vel };                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/purity
+  56:12  error  Error: Cannot modify local variables after render completes
+
+This argument is a function which may reassign or mutate `velocities` after render, which can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:56:12
+  54 |   }), []);
+  55 |
+> 56 |   useFrame(() => {
+     |            ^^^^^^^
+> 57 |     if (!pointsRef.current || !linesRef.current) return;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 58 |     
+     …
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 92 |     linesRef.current.geometry.setAttribute("position", new THREE.Float32BufferAttribute(linePositions, 3));
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 93 |   });
+     | ^^^^ This function may (indirectly) reassign or modify `velocities` after render
+  94 |
+  95 |   return (
+  96 |     <group>
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:69:43
+  67 |
+  68 |       // Bounce
+> 69 |       if (Math.abs(posArray[i * 3]) > 10) velocities[i].x *= -1;
+     |                                           ^^^^^^^^^^^^^ This modifies `velocities`
+  70 |       if (Math.abs(posArray[i * 3 + 1]) > 10) velocities[i].y *= -1;
+  71 |       if (posArray[i * 3 + 2] < -15 || posArray[i * 3 + 2] > 0) velocities[i].z *= -1;
+  72 |     }  react-hooks/immutability
+  69:43  error  Error: This value cannot be modified
+
+Modifying a value previously passed as an argument to a hook is not allowed. Consider moving the modification before calling the hook.
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/neural-background.tsx:69:43
+  67 |
+  68 |       // Bounce
+> 69 |       if (Math.abs(posArray[i * 3]) > 10) velocities[i].x *= -1;
+     |                                           ^^^^^^^^^^^^^ `velocities` cannot be modified
+  70 |       if (Math.abs(posArray[i * 3 + 1]) > 10) velocities[i].y *= -1;
+  71 |       if (posArray[i * 3 + 2] < -15 || posArray[i * 3 + 2] > 0) velocities[i].z *= -1;
+  72 |     }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/immutability
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/scene-utils.tsx
+  15:27  error  Error: Cannot call impure function during render
+
+`performance.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/scene-utils.tsx:15:27
+  13 |   const detectPerformance = usePerformanceStore((s) => s.detectPerformance);
+  14 |   const frameCount = useRef(0);
+> 15 |   const lastTime = useRef(performance.now());
+     |                           ^^^^^^^^^^^^^^^^^ Cannot call impure function
+  16 |
+  17 |   useEffect(() => {
+  18 |     detectPerformance();                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        react-hooks/purity
+  59:12  error  Error: Cannot modify local variables after render completes
+
+This argument is a function which may reassign or mutate `camera` after render, which can cause inconsistent behavior on subsequent renders. Consider using state instead.
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/scene-utils.tsx:59:12
+  57 |   }, []);
+  58 |
+> 59 |   useFrame(() => {
+     |            ^^^^^^^
+> 60 |     targetX.current = lerp(targetX.current, mouseRef.current.x * 0.3, 0.05);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 61 |     targetY.current = lerp(targetY.current, mouseRef.current.y * 0.2, 0.05);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 62 |
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 63 |     camera.position.x = targetX.current;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 64 |     camera.position.y = targetY.current;
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 65 |     camera.lookAt(0, 0, 0);
+     | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 66 |   });
+     | ^^^^ This function may (indirectly) reassign or modify `camera` after render
+  67 |
+  68 |   return null;
+  69 | }
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/scene-utils.tsx:63:5
+  61 |     targetY.current = lerp(targetY.current, mouseRef.current.y * 0.2, 0.05);
+  62 |
+> 63 |     camera.position.x = targetX.current;
+     |     ^^^^^^^^^^^^^^^ This modifies `camera`
+  64 |     camera.position.y = targetY.current;
+  65 |     camera.lookAt(0, 0, 0);
+  66 |   });  react-hooks/immutability
+  63:5   error  Error: This value cannot be modified
+
+Modifying a value returned from a hook is not allowed. Consider moving the modification into the hook where the value is constructed.
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/three/scene-utils.tsx:63:5
+  61 |     targetY.current = lerp(targetY.current, mouseRef.current.y * 0.2, 0.05);
+  62 |
+> 63 |     camera.position.x = targetX.current;
+     |     ^^^^^^^^^^^^^^^ `camera` cannot be modified
+  64 |     camera.position.y = targetY.current;
+  65 |     camera.lookAt(0, 0, 0);
+  66 |   });                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 react-hooks/immutability
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/transitions/digital-tunnel.tsx
+  62:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/components/transitions/digital-tunnel.tsx:62:7
+  60 |   useEffect(() => {
+  61 |     if (isActive) {
+> 62 |       setShow(true);
+     |       ^^^^^^^ Avoid calling setState() directly within an effect
+  63 |       // Play transition for 3 seconds before completing
+  64 |       const timer = setTimeout(() => {
+  65 |         setShow(false);  react-hooks/set-state-in-effect
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/lib/animations/hooks.ts
+   56:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/lib/animations/hooks.ts:56:5
+  54 |   useEffect(() => {
+  55 |     const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+> 56 |     setPrefersReduced(mediaQuery.matches);
+     |     ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  57 |
+  58 |     const handler = (e: MediaQueryListEvent) => setPrefersReduced(e.matches);
+  59 |     mediaQuery.addEventListener("change", handler);  react-hooks/set-state-in-effect
+  133:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/vaibhavrajput/InterviewOS/apps/frontend/src/lib/animations/hooks.ts:133:5
+  131 |     if (hasStarted) return;
+  132 |
+> 133 |     setHasStarted(true);
+      |     ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  134 |
+  135 |     const startTime = performance.now();
+  136 |     const step = (currentTime: number) => {                                                                                                                                   react-hooks/set-state-in-effect
+
+✖ 51 problems (47 errors, 4 warnings)
+
