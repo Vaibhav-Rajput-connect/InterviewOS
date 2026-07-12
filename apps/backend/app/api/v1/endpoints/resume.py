@@ -121,7 +121,22 @@ async def get_resume_overview(
         "title": resume.title,
         "status": resume.parsing_status,
         "created_at": resume.created_at,
-        "analysis": resume.analysis
+        "analysis": {
+            "id": str(resume.analysis.id),
+            "overall_score": resume.analysis.overall_score,
+            "ats_score": getattr(resume.analysis, "ats_score", None),
+            "technical_score": getattr(resume.analysis, "technical_score", None),
+            "communication_score": getattr(resume.analysis, "communication_score", None),
+            "summary": resume.analysis.summary,
+            "strengths": resume.analysis.strengths,
+            "weaknesses": resume.analysis.weaknesses,
+            "recommendations": resume.analysis.recommendations,
+            "career_trajectory": resume.analysis.career_trajectory,
+            "skill_gap": getattr(resume.analysis, "skill_gap", []),
+            "missing_keywords": getattr(resume.analysis, "missing_keywords", []),
+            "learning_roadmap": getattr(resume.analysis, "learning_roadmap", []),
+            "interview_readiness": getattr(resume.analysis, "interview_readiness", None),
+        } if resume.analysis else None
     }
 
 @router.get("/{resume_id}/analysis")
@@ -136,7 +151,25 @@ async def get_resume_analysis(
         
     stmt = select(ResumeAnalysis).where(ResumeAnalysis.resume_id == resume_id)
     analysis = (await db.execute(stmt)).scalar_one_or_none()
-    return analysis
+    if not analysis:
+        return None
+        
+    return {
+        "id": str(analysis.id),
+        "overall_score": analysis.overall_score,
+        "ats_score": getattr(analysis, "ats_score", None),
+        "technical_score": getattr(analysis, "technical_score", None),
+        "communication_score": getattr(analysis, "communication_score", None),
+        "summary": analysis.summary,
+        "strengths": analysis.strengths,
+        "weaknesses": analysis.weaknesses,
+        "recommendations": analysis.recommendations,
+        "career_trajectory": analysis.career_trajectory,
+        "skill_gap": getattr(analysis, "skill_gap", []),
+        "missing_keywords": getattr(analysis, "missing_keywords", []),
+        "learning_roadmap": getattr(analysis, "learning_roadmap", []),
+        "interview_readiness": getattr(analysis, "interview_readiness", None),
+    }
 
 @router.get("/{resume_id}/recommendations")
 async def get_resume_recommendations(
@@ -166,7 +199,17 @@ async def get_resume_skills(
         
     stmt = select(ResumeSkill).options(selectinload(ResumeSkill.technology)).where(ResumeSkill.resume_id == resume_id)
     skills = (await db.execute(stmt)).scalars().all()
-    return skills
+    
+    result = []
+    for skill in skills:
+        result.append({
+            "id": str(skill.id),
+            "name": skill.name,
+            "proficiency": skill.proficiency,
+            "years_experience": skill.years_experience,
+            "category": skill.technology.category if skill.technology else None
+        })
+    return result
 
 @router.get("/{resume_id}/experience")
 async def get_resume_experience(
@@ -238,7 +281,18 @@ async def get_resume_education(
         
     stmt = select(ResumeEducation).where(ResumeEducation.resume_id == resume_id)
     education = (await db.execute(stmt)).scalars().all()
-    return education
+    
+    result = []
+    for edu in education:
+        result.append({
+            "id": str(edu.id),
+            "institution": edu.institution,
+            "degree": edu.degree,
+            "field_of_study": edu.field_of_study,
+            "start_date": edu.start_date,
+            "end_date": edu.end_date,
+        })
+    return result
 
 @router.post("/{resume_id}/reanalyze", status_code=status.HTTP_202_ACCEPTED)
 @limiter.limit("2/minute")
