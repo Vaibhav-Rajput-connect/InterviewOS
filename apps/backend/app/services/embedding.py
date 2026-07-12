@@ -23,6 +23,8 @@ class EmbeddingService:
             contents=text,
             config=config,
         )
+        if not response.embeddings or not response.embeddings[0].values:
+            return []
         return response.embeddings[0].values[:768]
 
     def generate_embeddings_batch(self, texts: List[str]) -> List[List[float]]:
@@ -35,4 +37,13 @@ class EmbeddingService:
             contents=texts,
             config=config,
         )
-        return [embed.values[:768] for embed in response.embeddings]
+        if not response.embeddings:
+            return []
+        
+        results = []
+        for embed in response.embeddings:
+            if embed.values:
+                results.append(embed.values[:768])
+            else:
+                results.append([])
+        return results

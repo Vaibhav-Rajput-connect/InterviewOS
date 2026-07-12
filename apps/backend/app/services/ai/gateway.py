@@ -25,7 +25,7 @@ class AIGateway:
         stop=stop_after_attempt(3),
         reraise=True
     )
-    def generate_structured_output(self, prompt: str, schema: Type[T], system_prompt: str = None) -> T:
+    def generate_structured_output(self, prompt: str, schema: Type[T], system_prompt: str | None = None) -> T:
         return self.provider.generate_structured_output(prompt, schema, system_prompt)
         
     @retry(
@@ -33,5 +33,5 @@ class AIGateway:
         stop=stop_after_attempt(3),
         reraise=True
     )
-    def generate_text(self, prompt: str, system_prompt: str = None) -> str:
+    def generate_text(self, prompt: str, system_prompt: str | None = None) -> str:
         return self.provider.generate_text(prompt, system_prompt)

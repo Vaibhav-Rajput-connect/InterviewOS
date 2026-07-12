@@ -69,7 +69,7 @@ async def upload_resume(
     await db.commit()
     await db.refresh(new_resume)
     
-    if not file_path:
+    if file_path is None:
         raise HTTPException(status_code=500, detail="Failed to save uploaded file")
         
     # Start background parsing task
@@ -327,5 +327,9 @@ async def reanalyze_resume(
         
     await db.commit()
     
-    background_tasks.add_task(process_resume_background, resume.id, resume.file_url)
+    file_url = resume.file_url
+    if file_url is None:
+        raise HTTPException(status_code=400, detail="Resume file not found")
+        
+    background_tasks.add_task(process_resume_background, resume.id, file_url)
     return {"message": "Reanalysis triggered.", "status": "processing"}

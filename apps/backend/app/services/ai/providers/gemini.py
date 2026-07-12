@@ -28,11 +28,12 @@ class GeminiProvider(BaseAIProvider):
         wait=wait_exponential(multiplier=1, min=2, max=10),
         reraise=True
     )
-    def generate_structured_output(self, prompt: str, schema: Type[T], system_prompt: str = None) -> T:
+    def generate_structured_output(self, prompt: str, schema: Type[T], system_prompt: str | None = None) -> T:
         logger.info(f"Generating structured output with Gemini using schema {schema.__name__}")
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
         
-        config_kwargs = {
+        from typing import Any
+        config_kwargs: dict[str, Any] = {
             "response_mime_type": "application/json",
             "response_schema": schema,
             "temperature": 0.1,
@@ -48,7 +49,7 @@ class GeminiProvider(BaseAIProvider):
                 contents=contents,
                 config=config,
             )
-            return schema.model_validate_json(response.text)
+            return schema.model_validate_json(response.text or "{}")
         except Exception as e:
             logger.error(f"Gemini generation error: {str(e)}", exc_info=True)
             raise AIProviderError(f"Failed to generate structured output: {str(e)}")
@@ -58,11 +59,12 @@ class GeminiProvider(BaseAIProvider):
         wait=wait_exponential(multiplier=1, min=2, max=10),
         reraise=True
     )
-    def generate_text(self, prompt: str, system_prompt: str = None) -> str:
+    def generate_text(self, prompt: str, system_prompt: str | None = None) -> str:
         logger.info("Generating text with Gemini")
         contents = [types.Content(role="user", parts=[types.Part.from_text(text=prompt)])]
         
-        config_kwargs = {"temperature": 0.7}
+        from typing import Any
+        config_kwargs: dict[str, Any] = {"temperature": 0.7}
         if system_prompt:
             config_kwargs["system_instruction"] = system_prompt
             
@@ -74,7 +76,7 @@ class GeminiProvider(BaseAIProvider):
                 contents=contents,
                 config=config,
             )
-            return response.text
+            return response.text or ""
         except Exception as e:
             logger.error(f"Gemini text generation error: {str(e)}", exc_info=True)
             raise AIProviderError(f"Failed to generate text: {str(e)}")

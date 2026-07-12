@@ -202,6 +202,7 @@ async def process_resume_background(resume_id: uuid.UUID, file_path: str):
                 if resume:
                     resume.parsing_status = "failed"
                     await db.commit()
+            except Exception as inner_e:
                 logger.error(f"Failed to update resume status to failed: {str(inner_e)}", exc_info=True)
         finally:
             # Automated Resume Cleanup: delete physical file after processing
