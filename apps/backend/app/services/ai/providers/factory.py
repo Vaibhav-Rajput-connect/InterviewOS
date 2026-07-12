@@ -1,6 +1,6 @@
 import os
 import logging
-from typing import Dict, Type
+from typing import Dict, Type, Optional
 
 from app.services.ai.providers.base import BaseAIProvider
 from app.services.ai.providers.gemini import GeminiProvider
@@ -19,7 +19,7 @@ class ProviderFactory:
     }
 
     @classmethod
-    def get_provider(cls, provider_name: str = None) -> BaseAIProvider:
+    def get_provider(cls, provider_name: Optional[str] = None) -> BaseAIProvider:
         if not provider_name:
             provider_name = os.getenv("AI_PROVIDER", "gemini").lower()
             
