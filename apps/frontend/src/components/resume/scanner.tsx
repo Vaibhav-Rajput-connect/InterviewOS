@@ -10,6 +10,8 @@ export function ResumeScanner() {
   const [isDragging, setIsDragging] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [dataPoints, setDataPoints] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
@@ -28,7 +30,8 @@ export function ResumeScanner() {
     }
     
     setError(null);
-    setIsScanning(true);
+    setIsUploading(true);
+    setUploadProgress(0);
     
     const formData = new FormData();
     formData.append("file", file);
@@ -38,7 +41,16 @@ export function ResumeScanner() {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        onUploadProgress: (progressEvent) => {
+          if (progressEvent.total) {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            setUploadProgress(percentCompleted);
+          }
+        },
       });
+      
+      setIsUploading(false);
+      setIsScanning(true);
       
       const data = res.data;
       console.log("Upload successful:", data);
@@ -87,6 +99,7 @@ export function ResumeScanner() {
       } else {
         setError(err.message || "Failed to upload resume.");
       }
+      setIsUploading(false);
       setIsScanning(false);
     }
   };
@@ -132,10 +145,10 @@ export function ResumeScanner() {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        whileHover={!isScanning && !isComplete ? { scale: 1.01 } : {}}
+        whileHover={!isUploading && !isScanning && !isComplete ? { scale: 1.01 } : {}}
       >
         <AnimatePresence mode="wait">
-          {!isScanning && !isComplete && (
+          {!isUploading && !isScanning && !isComplete && (
             <motion.div
               key="upload"
               initial={{ opacity: 0, y: 20 }}
@@ -162,7 +175,27 @@ export function ResumeScanner() {
             </motion.div>
           )}
 
-          {isScanning && (
+          {isUploading && (
+            <motion.div
+              key="uploading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="flex flex-col items-center justify-center w-full px-12"
+            >
+              <h3 className="text-xl font-bold text-white mb-4">Uploading Resume...</h3>
+              <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden">
+                <motion.div 
+                  className="h-full bg-red-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${uploadProgress}%` }}
+                />
+              </div>
+              <p className="text-slate-400 mt-2 font-mono">{uploadProgress}%</p>
+            </motion.div>
+          )}
+
+          {isScanning && !isUploading && (
             <motion.div
               key="scan"
               initial={{ opacity: 0 }}

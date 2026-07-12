@@ -15,9 +15,14 @@ from .resume import (
     Technology,
     Embedding,
 )
-from .interview import Interview
-from .question import Question
-from .answer import Answer
+from .interview_engine import (
+    InterviewSession,
+    InterviewQuestion,
+    InterviewAnswer,
+    InterviewEvaluation,
+    InterviewFeedback,
+    InterviewSummary,
+)
 from .auth import Session, VerificationToken
 from .activity import ActivityLog, Notification
 from .gamification import Achievement, DailyGoal, UserStats
@@ -26,9 +31,12 @@ __all__ = [
     "User",
     "Profile",
     "Resume",
-    "Interview",
-    "Question",
-    "Answer",
+    "InterviewSession",
+    "InterviewQuestion",
+    "InterviewAnswer",
+    "InterviewEvaluation",
+    "InterviewFeedback",
+    "InterviewSummary",
     "Session",
     "VerificationToken",
     "ActivityLog",

@@ -4,7 +4,7 @@ from pathlib import Path
 from fastapi import UploadFile
 
 # Use a local directory for now. In production, this would be an S3 abstraction.
-UPLOAD_DIR = Path("uploads/resumes")
+UPLOAD_DIR = Path("uploads/resumes").resolve()
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
 class StorageService:

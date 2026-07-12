@@ -89,6 +89,25 @@ async def upload_resume(
         }
     }
 
+@router.get("")
+@router.get("/")
+async def list_resumes(
+    db: DbSession,
+    current_user: CurrentUser,
+) -> Any:
+    """List all resumes for the current user."""
+    stmt = select(Resume).where(Resume.user_id == current_user.id).order_by(Resume.created_at.desc())
+    resumes = (await db.execute(stmt)).scalars().all()
+    
+    return [
+        {
+            "id": str(r.id),
+            "title": r.title,
+            "parsing_status": r.parsing_status,
+            "created_at": r.created_at
+        } for r in resumes
+    ]
+
 @router.get("/{resume_id}/status")
 @limiter.limit("30/minute")
 async def get_resume_status(

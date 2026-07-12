@@ -58,9 +58,9 @@ async def get_dashboard_overview(
     goals = goals_query.scalars().all()
 
     return DashboardOverviewResponse(
-        stats=stats,
-        recent_activity=list(activities),
-        goals=list(goals),
+        stats=stats, # type: ignore
+        recent_activity=list(activities), # type: ignore
+        goals=list(goals), # type: ignore
     )
 
 @router.get("/notifications", response_model=List[NotificationResponse])
@@ -97,7 +97,7 @@ async def mark_notification_read(
     if not notification:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Notification not found")
         
-    notification.is_read = True
+    notification.is_read = True # type: ignore
     await db.commit()
     await db.refresh(notification)
     return notification

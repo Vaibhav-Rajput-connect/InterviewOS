@@ -31,7 +31,7 @@ def setup_logging() -> None:
     
     console_handler.addFilter(ContextFilter())
 
-    formatter = jsonlogger.JsonFormatter(
+    formatter = jsonlogger.JsonFormatter( # type: ignore
         '%(asctime)s %(levelname)s %(name)s %(message)s %(request_id)s %(user_id)s',
         rename_fields={"levelname": "level", "asctime": "timestamp"}
     )

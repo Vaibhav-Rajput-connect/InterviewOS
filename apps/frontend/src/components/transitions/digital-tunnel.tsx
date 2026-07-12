@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Points, PointMaterial } from "@react-three/drei";
@@ -48,7 +48,7 @@ function TunnelScene() {
   );
 }
 
-export function DigitalTunnelTransition({
+export const DigitalTunnelTransition = React.memo(function DigitalTunnelTransition({
   isActive,
   onComplete,
 }: {
@@ -104,4 +104,4 @@ export function DigitalTunnelTransition({
       )}
     </AnimatePresence>
   );
-}
+});

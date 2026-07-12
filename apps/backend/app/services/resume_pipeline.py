@@ -14,6 +14,7 @@ from app.services.ai.schemas import ExtractedResumeMetadata, DeepResumeAnalysis
 from app.services.ai.prompts.manager import PromptManager
 from app.services.embedding import EmbeddingService
 from app.db.engine import async_session_factory
+from starlette.concurrency import run_in_threadpool
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ async def process_resume_background(resume_id: uuid.UUID, file_path: str):
 
             # 2. Extract Raw Text
             logger.info("Extracting raw text via ResumeParser")
-            raw_text = ResumeParser.extract_text(file_path)
+            raw_text = await run_in_threadpool(ResumeParser.extract_text, file_path)
             resume.content = raw_text
 
             ai_gateway = AIGateway()
@@ -47,17 +48,19 @@ async def process_resume_background(resume_id: uuid.UUID, file_path: str):
             # 3. First AI Pass: Extract Metadata
             logger.info("Running AI extraction pass (Metadata)")
             extraction_prompt = PromptManager.get_prompt("resume", "extraction", raw_text=raw_text)
-            metadata = ai_gateway.generate_structured_output(
-                prompt=extraction_prompt,
-                schema=ExtractedResumeMetadata
+            metadata = await run_in_threadpool(
+                ai_gateway.generate_structured_output,
+                extraction_prompt,
+                ExtractedResumeMetadata
             )
             
             # 4. Second AI Pass: Deep Analysis
             logger.info("Running AI analysis pass (Deep Analysis)")
             analysis_prompt = PromptManager.get_prompt("resume", "analysis", raw_text=raw_text)
-            deep_analysis = ai_gateway.generate_structured_output(
-                prompt=analysis_prompt,
-                schema=DeepResumeAnalysis
+            deep_analysis = await run_in_threadpool(
+                ai_gateway.generate_structured_output,
+                analysis_prompt,
+                DeepResumeAnalysis
             )
 
             # 5. Populate Database
@@ -177,7 +180,10 @@ async def process_resume_background(resume_id: uuid.UUID, file_path: str):
             # 7. Generate Embeddings
             logger.info("Generating embeddings")
             if texts_to_embed:
-                vectors = embedding_service.generate_embeddings_batch(texts_to_embed)
+                vectors = await run_in_threadpool(
+                    embedding_service.generate_embeddings_batch, 
+                    texts_to_embed
+                )
                 for idx, (text, vector) in enumerate(zip(texts_to_embed, vectors)):
                     db_embed = Embedding(
                         resume_id=resume.id,

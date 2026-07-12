@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/purity */
 "use client";
 
-import { useRef, useMemo } from "react";
+import React, { useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Sphere, MeshDistortMaterial } from "@react-three/drei";
 import * as THREE from "three";
@@ -113,12 +113,14 @@ function Particles() {
   );
 }
 
-export function AICoreScene() {
+export const AICoreScene = React.memo(function AICoreScene() {
   return (
     <div className="w-full h-full relative">
       <Canvas
         camera={{ position: [0, 0, 8], fov: 45 }}
         gl={{ alpha: true, antialias: true }}
+        dpr={[1, 2]}
+        performance={{ min: 0.5 }}
       >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} intensity={1} color="#ef4444" />
@@ -131,4 +133,4 @@ export function AICoreScene() {
       <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.4)_100%)]" />
     </div>
   );
-}
+});

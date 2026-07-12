@@ -39,8 +39,8 @@ class User(Base):
 
     # Relationships
     resumes: Mapped[list["Resume"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    interviews: Mapped[list["Interview"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    answers: Mapped[list["Answer"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    interview_sessions: Mapped[list["InterviewSession"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    interview_answers: Mapped[list["InterviewAnswer"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     profile: Mapped["Profile"] = relationship(back_populates="user", uselist=False, cascade="all, delete-orphan")
     sessions: Mapped[list["Session"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     verification_tokens: Mapped[list["VerificationToken"]] = relationship(back_populates="user", cascade="all, delete-orphan")

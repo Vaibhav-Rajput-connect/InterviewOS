@@ -47,3 +47,26 @@ class DeepResumeAnalysis(BaseModel):
     recommendations: List[str] = Field(description="List of actionable recommendations to improve the resume or career readiness.")
     learning_roadmap: List[str] = Field(description="List of steps to upskill based on skill gaps.")
     interview_readiness: str = Field(description="Paragraph on how ready this candidate is for an interview and what to prepare.")
+
+class GeneratedQuestion(BaseModel):
+    content: str = Field(description="The actual question text spoken by the interviewer.")
+    category: str = Field(description="The category of the question (e.g. behavioral, technical, system_design).")
+    expected_points: List[str] = Field(description="A list of key points or criteria you expect the candidate to cover in their answer.")
+
+class AnswerEvaluationResult(BaseModel):
+    overall_score: float = Field(description="Overall score out of 100 based on the quality of the answer.")
+    technical_accuracy: float = Field(description="Score out of 100 for technical correctness.")
+    communication: float = Field(description="Score out of 100 for clarity, structure, and communication.")
+    confidence: float = Field(description="Score out of 100 for perceived confidence in the answer.")
+    completeness: float = Field(description="Score out of 100 based on how well the candidate covered the expected points.")
+    suggestions: str = Field(description="Specific feedback and actionable suggestions for improving the answer.")
+
+class SessionSummaryResult(BaseModel):
+    overall_score: float = Field(description="Final aggregate score out of 100 for the entire interview.")
+    technical_score: float = Field(description="Final technical score out of 100.")
+    behavioral_score: float = Field(description="Final behavioral/cultural score out of 100.")
+    communication_score: float = Field(description="Final communication score out of 100.")
+    strengths: List[str] = Field(description="Top 3 to 5 strengths demonstrated by the candidate.")
+    weaknesses: List[str] = Field(description="Top 3 to 5 areas of weakness or missing knowledge.")
+    recommended_topics: List[str] = Field(description="Specific topics the candidate should study or practice before a real interview.")
+    next_learning_plan: str = Field(description="A concise, actionable learning plan summarizing how the candidate can improve.")

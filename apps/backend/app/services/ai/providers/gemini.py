@@ -21,11 +21,11 @@ class GeminiProvider(BaseAIProvider):
             logger.error("GEMINI_API_KEY is not set.")
             raise ValueError("GEMINI_API_KEY is not set.")
         self.client = genai.Client(api_key=settings.GEMINI_API_KEY)
-        self.model_name = "gemini-2.5-flash"
+        self.model_name = "gemini-3.5-flash"
         
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(6),
+        wait=wait_exponential(multiplier=2, min=5, max=60),
         reraise=True
     )
     def generate_structured_output(self, prompt: str, schema: Type[T], system_prompt: str | None = None) -> T:
@@ -55,8 +55,8 @@ class GeminiProvider(BaseAIProvider):
             raise AIProviderError(f"Failed to generate structured output: {str(e)}")
 
     @retry(
-        stop=stop_after_attempt(3),
-        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(6),
+        wait=wait_exponential(multiplier=2, min=5, max=60),
         reraise=True
     )
     def generate_text(self, prompt: str, system_prompt: str | None = None) -> str:

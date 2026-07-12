@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { Canvas } from "@react-three/fiber";
 import { Preload } from "@react-three/drei";
 import { AICore } from "./ai-core";
@@ -8,7 +9,7 @@ import { PerformanceManager, CameraRig } from "./scene-utils";
 import { usePerformanceStore } from "@/stores/performance-store";
 import { SCENE_CONFIG } from "@/lib/constants";
 
-export function HeroSceneInner() {
+export const HeroSceneInner = React.memo(function HeroSceneInner() {
   const dpr = usePerformanceStore((s) => s.dpr);
 
   return (
@@ -39,4 +40,4 @@ export function HeroSceneInner() {
       <Preload all />
     </Canvas>
   );
-}
+});

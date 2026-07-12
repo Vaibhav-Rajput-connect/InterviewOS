@@ -41,10 +41,17 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
+    tags_metadata = [
+        {"name": "Auth", "description": "Authentication and user identity endpoints."},
+        {"name": "Resume", "description": "Resume upload, processing, and parsing pipelines."},
+        {"name": "AI Gateway", "description": "Core AI OS processing endpoints."},
+    ]
+
     app = FastAPI(
         title=settings.PROJECT_NAME,
-        description="The AI Operating System for Interview Success.",
+        description="The AI Operating System for Interview Success. Complete API Documentation for InterviewOS.",
         version="0.1.0",
+        openapi_tags=tags_metadata,
         openapi_url=f"{settings.API_V1_PREFIX}/openapi.json",
         docs_url=f"{settings.API_V1_PREFIX}/docs",
         redoc_url=f"{settings.API_V1_PREFIX}/redoc",
@@ -52,7 +59,8 @@ def create_app() -> FastAPI:
     )
     
     app.state.limiter = limiter
-    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    from typing import cast, Callable, Any
+    app.add_exception_handler(RateLimitExceeded, cast(Callable[..., Any], _rate_limit_exceeded_handler))
 
     @app.middleware("http")
     async def add_request_id_middleware(request: Request, call_next):
