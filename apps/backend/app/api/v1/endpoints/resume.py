@@ -123,12 +123,10 @@ async def get_resume_overview(
     if not resume:
         raise HTTPException(status_code=404, detail="Resume not found")
         
-    return {
-        "id": str(resume.id),
-        "title": resume.title,
-        "status": resume.parsing_status,
-        "created_at": resume.created_at,
-        "analysis": {
+    analysis_data = None
+    # pyrefly: ignore [redundant-condition]
+    if resume.analysis:
+        analysis_data = {
             "id": str(resume.analysis.id),
             "overall_score": resume.analysis.overall_score,
             "ats_score": getattr(resume.analysis, "ats_score", None),
@@ -143,7 +141,14 @@ async def get_resume_overview(
             "missing_keywords": getattr(resume.analysis, "missing_keywords", []),
             "learning_roadmap": getattr(resume.analysis, "learning_roadmap", []),
             "interview_readiness": getattr(resume.analysis, "interview_readiness", None),
-        } if resume.analysis else None
+        }
+
+    return {
+        "id": str(resume.id),
+        "title": resume.title,
+        "status": resume.parsing_status,
+        "created_at": resume.created_at,
+        "analysis": analysis_data
     }
 
 @router.get("/{resume_id}/analysis")
