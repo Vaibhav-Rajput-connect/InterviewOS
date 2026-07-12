@@ -61,7 +61,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
+    <html data-scroll-behavior="smooth"
       lang="en"
       className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} antialiased`}
     >
