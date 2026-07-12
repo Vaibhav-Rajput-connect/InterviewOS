@@ -1,3 +1,4 @@
+import os
 import logging
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -201,5 +202,12 @@ async def process_resume_background(resume_id: uuid.UUID, file_path: str):
                 if resume:
                     resume.parsing_status = "failed"
                     await db.commit()
-            except Exception as inner_e:
                 logger.error(f"Failed to update resume status to failed: {str(inner_e)}", exc_info=True)
+        finally:
+            # Automated Resume Cleanup: delete physical file after processing
+            try:
+                if file_path and os.path.exists(file_path):
+                    os.remove(file_path)
+                    logger.info(f"Deleted physical file: {file_path}")
+            except Exception as cleanup_e:
+                logger.error(f"Failed to delete physical file {file_path}: {str(cleanup_e)}", exc_info=True)

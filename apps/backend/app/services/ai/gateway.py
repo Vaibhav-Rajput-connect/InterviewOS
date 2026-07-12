@@ -3,6 +3,8 @@ import logging
 from typing import Type, TypeVar
 from pydantic import BaseModel
 
+from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type
+
 from app.services.ai.providers.base import BaseAIProvider
 from app.services.ai.providers.factory import ProviderFactory
 
@@ -18,9 +20,18 @@ class AIGateway:
     
     def __init__(self):
         self.provider: BaseAIProvider = ProviderFactory.get_provider()
-            
+    @retry(
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(3),
+        reraise=True
+    )
     def generate_structured_output(self, prompt: str, schema: Type[T], system_prompt: str = None) -> T:
         return self.provider.generate_structured_output(prompt, schema, system_prompt)
         
+    @retry(
+        wait=wait_exponential(multiplier=1, min=2, max=10),
+        stop=stop_after_attempt(3),
+        reraise=True
+    )
     def generate_text(self, prompt: str, system_prompt: str = None) -> str:
         return self.provider.generate_text(prompt, system_prompt)
