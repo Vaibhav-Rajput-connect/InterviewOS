@@ -48,3 +48,5 @@ asyncio_mode = "auto"
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+typeCheckingMode = "basic"
+reportUndefinedVariable = "none"

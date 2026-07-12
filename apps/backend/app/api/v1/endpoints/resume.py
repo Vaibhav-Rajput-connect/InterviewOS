@@ -69,8 +69,15 @@ async def upload_resume(
     await db.commit()
     await db.refresh(new_resume)
     
-    # Trigger background task for processing
-    background_tasks.add_task(process_resume_background, new_resume.id, file_path)
+    if not file_path:
+        raise HTTPException(status_code=500, detail="Failed to save uploaded file")
+        
+    # Start background parsing task
+    background_tasks.add_task(
+        process_resume_background,
+        new_resume.id,
+        file_path
+    )
     
     return {
         "success": True,

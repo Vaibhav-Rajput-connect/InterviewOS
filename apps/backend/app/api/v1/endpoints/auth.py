@@ -4,7 +4,9 @@ Authentication API Endpoints.
 
 import uuid
 from datetime import datetime, timedelta, timezone
+import logging
 from typing import Any
+logger = logging.getLogger(__name__)
 
 from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from fastapi.responses import RedirectResponse
