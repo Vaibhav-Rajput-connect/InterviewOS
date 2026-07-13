@@ -5,6 +5,7 @@ from sqlalchemy.future import select
 from sqlalchemy.orm import selectinload
 from sqlalchemy import or_
 import uuid
+import asyncio
 
 from pydantic import BaseModel
 from typing import Optional, List, Dict
@@ -20,6 +21,7 @@ class ExecutionRequest(BaseModel):
     language: str
     code: str
     problem_id: Optional[str] = None
+    custom_testcases: Optional[List[Dict]] = None
 
 class ExecutionResult(BaseModel):
     stdout: str
@@ -39,9 +41,9 @@ router = APIRouter()
 async def get_problems(
     db: deps.DbSession,
     current_user: deps.CurrentUser,
-    difficulty: str = None,
-    topic: str = None,
-    search: str = None,
+    difficulty: str | None = None,
+    topic: str | None = None,
+    search: str | None = None,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100)
 ) -> Any:
@@ -158,8 +160,8 @@ async def toggle_bookmark(
     result = await db.execute(status_query)
     status = result.scalar_one_or_none()
     
-    if status:
-        status.bookmarked = not status.bookmarked
+    if status is not None:
+        status.bookmarked = not status.bookmarked  # type: ignore
     else:
         status = UserProblemStatus(
             user_id=current_user.id,
@@ -184,18 +186,21 @@ async def execute_code(
     Execute code in a sandboxed environment.
     """
     test_cases = None
-    if request.problem_id:
+    if request.custom_testcases:
+        test_cases = request.custom_testcases
+    elif request.problem_id:
         # Fetch problem test cases
         problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
-        if problem and problem.test_cases:
-            test_cases = problem.test_cases
+        if problem is not None and problem.test_cases is not None:
+            test_cases = problem.test_cases  # type: ignore
 
     runner = CodeRunner()
-    result = runner.execute(
+    result = await asyncio.to_thread(
+        runner.execute,
         language=request.language,
         code=request.code,
         problem_id=request.problem_id,
-        test_cases=test_cases
+        test_cases=test_cases  # type: ignore
     )
     
     return ExecutionResult(**result)
@@ -237,11 +242,15 @@ async def submit_code(
 
     # 2. Run Code Execution
     runner = CodeRunner()
-    exec_result = runner.execute(
+    
+    test_cases = request.custom_testcases if request.custom_testcases else problem.test_cases
+
+    exec_result = await asyncio.to_thread(
+        runner.execute,
         language=request.language,
         code=request.code,
         problem_id=request.problem_id,
-        test_cases=problem.test_cases
+        test_cases=test_cases  # type: ignore
     )
     
     # 3. AI Evaluation
@@ -251,7 +260,7 @@ async def submit_code(
     eval_result = None
     try:
         eval_result = await gateway.evaluate_code_submission(
-            problem_description=problem.description,
+            problem_description=problem.description,  # type: ignore
             current_code=request.code,
             execution_result=exec_result
         )
@@ -259,8 +268,8 @@ async def submit_code(
         print(f"Error during AI evaluation: {e}")
 
     # 4. Update Submission and save related logs
-    is_success = exec_result.get("exit_code") == 0 and exec_result.get("fail_count", 0) == 0
-    submission.status = "success" if is_success else "failed"
+    is_success = exec_result.get("exit_code") == 0 and exec_result.get("failed_count", 0) == 0
+    submission.status = "success" if is_success else "failed"  # type: ignore
     
     # Save ExecutionLog
     exec_log = ExecutionLog(
@@ -270,8 +279,8 @@ async def submit_code(
         exit_code=exec_result.get("exit_code"),
         time_ms=exec_result.get("time_ms"),
         memory_kb=exec_result.get("memory_kb"),
-        pass_count=exec_result.get("pass_count"),
-        fail_count=exec_result.get("fail_count"),
+        pass_count=exec_result.get("passed_count"),
+        fail_count=exec_result.get("failed_count"),
         total_cases=exec_result.get("total_cases"),
         status=exec_result.get("status"),
     )
@@ -311,10 +320,10 @@ async def submit_code(
         )
         db.add(user_status)
     else:
-        user_status.last_attempted_at = datetime.now(timezone.utc)
-        if is_success and user_status.status != "solved":
-            user_status.status = "solved"
-            user_status.solved_at = datetime.now(timezone.utc)
+        user_status.last_attempted_at = datetime.now(timezone.utc)  # type: ignore
+        if is_success and user_status.status != "solved":  # type: ignore
+            user_status.status = "solved"  # type: ignore
+            user_status.solved_at = datetime.now(timezone.utc)  # type: ignore
             
     await db.commit()
     
@@ -353,7 +362,7 @@ async def get_coding_hints(
     from app.services.ai.gateway import AIGateway
     gateway = AIGateway()
     result = await gateway.generate_coding_hints(
-        problem_description=problem.description,
+        problem_description=problem.description,  # type: ignore
         current_code=request.current_code
     )
     
@@ -385,7 +394,7 @@ async def analyze_complexity(
     from app.services.ai.gateway import AIGateway
     gateway = AIGateway()
     result = await gateway.analyze_code_complexity(
-        problem_description=problem.description,
+        problem_description=problem.description,  # type: ignore
         current_code=request.current_code
     )
     return result
@@ -405,7 +414,7 @@ async def copilot_chat(
     from app.services.ai.gateway import AIGateway
     gateway = AIGateway()
     result = await gateway.chat_with_copilot(
-        problem_description=problem.description,
+        problem_description=problem.description,  # type: ignore
         current_code=request.current_code,
         user_message=request.user_message,
         chat_history=request.chat_history
@@ -416,7 +425,7 @@ async def copilot_chat(
 async def get_submissions(
     db: deps.DbSession,
     current_user: deps.CurrentUser,
-    problem_id: str = None,
+    problem_id: str | None = None,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100)
 ) -> Any:

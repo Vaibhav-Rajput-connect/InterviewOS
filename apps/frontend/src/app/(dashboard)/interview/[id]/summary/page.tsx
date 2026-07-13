@@ -22,7 +22,8 @@ export default function InterviewSummaryPage() {
   const sessionId = params.id as string;
 
   const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<Record<string, unknown> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [summary, setSummary] = useState<any | null>(null);
 
   useEffect(() => {
     const fetchSummary = async () => {

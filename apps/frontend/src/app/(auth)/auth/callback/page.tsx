@@ -31,7 +31,7 @@ function AuthCallbackHandler() {
       {/* 3D Background */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <Canvas camera={{ position: [0, 0, 8], fov: 60 }} gl={{ alpha: true }}>
-          {/* eslint-disable-next-line react/jsx-no-undef */}
+
           <NeuralBackground />
         </Canvas>
       </div>

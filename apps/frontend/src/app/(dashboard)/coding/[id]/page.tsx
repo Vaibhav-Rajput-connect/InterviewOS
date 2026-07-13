@@ -1,6 +1,6 @@
 "use client";
 
-// @ts-ignore
+// @ts-expect-error - react-resizable-panels types missing
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { ProblemPanel } from "@/components/coding/problem-panel";
 import { AIPanel } from "@/components/coding/ai-panel";
@@ -10,6 +10,7 @@ import { motion } from "framer-motion";
 
 import { use, useState, useRef } from "react";
 import { ExecutionResult } from "@/lib/api/coding";
+import { useSearchParams } from "next/navigation";
 import { SubmissionModal } from "@/components/coding/submission-modal";
 import dynamic from "next/dynamic";
 
@@ -25,6 +26,11 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const [customInput, setCustomInput] = useState<string>("");
+  const searchParams = useSearchParams();
+  const sessionId = searchParams.get("session") || undefined;
+  const [copiedLink, setCopiedLink] = useState(false);
 
   return (
     <motion.div 
@@ -52,6 +58,29 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
 
         {/* Center Panel: Editor + Console */}
         <Panel defaultSize={45} minSize={30}>
+          <div className="h-10 border-b border-white/10 flex items-center justify-between px-4">
+            <span className="text-sm font-semibold text-slate-300">Code Editor</span>
+            <div className="flex items-center gap-4 text-sm text-slate-400">
+              {sessionId ? (
+                <span className="flex items-center gap-2 text-green-400 bg-green-500/10 px-3 py-1 rounded-full text-xs font-semibold">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Live Collaboration Active
+                </span>
+              ) : (
+                <button 
+                  onClick={() => {
+                    const newSession = Math.random().toString(36).substring(2, 10);
+                    const url = `${window.location.origin}${window.location.pathname}?session=${newSession}`;
+                    navigator.clipboard.writeText(url);
+                    setCopiedLink(true);
+                    setTimeout(() => setCopiedLink(false), 2000);
+                  }}
+                  className="flex items-center gap-2 hover:text-white transition-colors border border-white/10 bg-white/5 px-3 py-1 rounded-full text-xs font-semibold"
+                >
+                  {copiedLink ? "Link Copied!" : "Share Live Session"}
+                </button>
+              )}
+            </div>
+          </div>
           <PanelGroup direction="vertical">
             <Panel defaultSize={70} minSize={30}>
               <CodeEditor 
@@ -70,6 +99,8 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
                 isExecuting={isExecuting}
                 isSubmitting={isSubmitting}
                 onCodeChange={(code) => { currentCodeRef.current = code; }}
+                customTestcases={customInput}
+                sessionId={sessionId}
               />
             </Panel>
             
@@ -83,6 +114,8 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
               <ConsolePanel 
                 executionResult={executionResult} 
                 isExecuting={isExecuting} 
+                customInput={customInput}
+                onCustomInputChange={setCustomInput}
               />
             </Panel>
           </PanelGroup>

@@ -11,6 +11,8 @@ from app.api.v1.endpoints.resume import router as resume_router
 from app.api.v1.endpoints.coach import router as coach_router
 from app.api.v1.endpoints.interview import router as interview_router
 from app.api.v1.endpoints.coding import router as coding_router
+from app.api.v1.endpoints.coding_admin import router as coding_admin_router
+from app.api.v1.endpoints.coding_collab import router as coding_collab_router
 
 api_v1_router = APIRouter()
 
@@ -21,3 +23,5 @@ api_v1_router.include_router(resume_router, prefix="/resume", tags=["Resume"])
 api_v1_router.include_router(coach_router, prefix="/coach", tags=["Coach"])
 api_v1_router.include_router(interview_router, prefix="/interview", tags=["Interview"])
 api_v1_router.include_router(coding_router, prefix="/coding", tags=["Coding"])
+api_v1_router.include_router(coding_admin_router, prefix="/coding/admin", tags=["Coding Admin"])
+api_v1_router.include_router(coding_collab_router, prefix="/coding/collab", tags=["Coding Collab"])

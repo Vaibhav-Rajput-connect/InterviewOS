@@ -6,6 +6,6 @@ class DummySTTProvider(BaseSpeechToTextProvider):
         return "This is a dummy transcription. Voice features are currently disabled."
 
 class DummyTTSProvider(BaseTextToSpeechProvider):
-    async def synthesize(self, text: str, voice_id: str = None) -> bytes:
+    async def synthesize(self, text: str, voice_id: str | None = None) -> bytes:
         # Return an empty byte string to satisfy the interface
         return b""

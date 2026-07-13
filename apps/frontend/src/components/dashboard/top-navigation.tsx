@@ -4,12 +4,10 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Bell, User, Command, Zap, ChevronDown, LogOut, Settings } from "lucide-react";
 import { useAuthStore } from "@/stores/auth-store";
-import { useNotificationStore } from "@/stores/notification-store";
 import { useRouter } from "next/navigation";
 
 export function TopNavigation() {
   const { user, logout } = useAuthStore();
-  const { addToast } = useNotificationStore();
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -122,7 +120,10 @@ export function TopNavigation() {
             <div className="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-orange-500 p-0.5 shadow-[0_0_15px_rgba(239,68,68,0.3)]">
               <div className="w-full h-full rounded-full bg-black flex items-center justify-center overflow-hidden">
                 {user?.avatar_url ? (
-                  <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={user.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  </>
                 ) : (
                   <User size={18} className="text-red-400" />
                 )}

@@ -5,7 +5,7 @@ import { Tag, AlertCircle, FileText, History, CheckCircle2, XCircle, Clock } fro
 import { useQuery } from "@tanstack/react-query";
 import { codingApi } from "@/lib/api/coding";
 
-export const ProblemPanel = React.memo(function ProblemPanel({ problemId, onViewSubmission }: { problemId: string, onViewSubmission?: (result: unknown) => void }) {
+export const ProblemPanel = React.memo(function ProblemPanel({ problemId, onViewSubmission }: { problemId: string, onViewSubmission?: (result: any) => void }) {
   const [activeTab, setActiveTab] = useState<"description" | "submissions">("description");
 
   const { data: problem, isLoading, isError } = useQuery({

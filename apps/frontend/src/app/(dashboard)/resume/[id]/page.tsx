@@ -8,7 +8,8 @@ import { GlassCard } from "@/components/ui/cards";
 
 export default function ResumeDashboardPage() {
   const { id } = useParams();
-  const [data, setData] = useState<Record<string, unknown> | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -30,8 +31,9 @@ export default function ResumeDashboardPage() {
           projects: projects.data,
           education: education.data,
         });
-      } catch (err: any) {
-        setError(err.message || "Failed to load resume data.");
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to load resume data.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -56,7 +58,7 @@ export default function ResumeDashboardPage() {
     );
   }
 
-  const { overview, skills, experience, projects, education } = data;
+  const { overview, skills, experience } = data;
   const analysis = overview.analysis;
 
   return (
@@ -186,7 +188,7 @@ export default function ResumeDashboardPage() {
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-white mb-6">Experience</h2>
         <div className="flex flex-col gap-4">
-          {experience.map((exp: Record<string, unknown>) => (
+          {experience.map((exp: any) => (
             <GlassCard key={exp.id} className="p-6 border-white/10 bg-white/[0.02]">
               <div className="flex justify-between items-start mb-2">
                 <div>

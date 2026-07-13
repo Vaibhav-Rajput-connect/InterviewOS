@@ -7,7 +7,7 @@ import { Search, Filter, Bookmark, CheckCircle2, Circle, ChevronRight } from "lu
 import Link from "next/link";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { codingApi, CodingProblem } from "@/lib/api/coding";
+import { codingApi } from "@/lib/api/coding";
 
 export default function CodingDashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");

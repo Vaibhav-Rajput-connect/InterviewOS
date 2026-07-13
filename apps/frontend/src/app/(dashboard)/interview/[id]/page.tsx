@@ -17,8 +17,6 @@ import {
   Clock, 
   Activity, 
   FileText, 
-  ChevronRight,
-  ShieldAlert,
   Loader2
 } from "lucide-react";
 import apiClient from "@/lib/api-client";
@@ -53,10 +51,10 @@ export default function InterviewChamberPage() {
   const [questionText, setQuestionText] = useState("");
   const [currentQuestionId, setCurrentQuestionId] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
-  const [totalQuestions, setTotalQuestions] = useState(5); // Hardcoded for now
-  const [status, setStatus] = useState("Initializing...");
+  const [totalQuestions] = useState(5); // Hardcoded for now
   const [showNotes, setShowNotes] = useState(false);
   const [isAiThinking, setIsAiThinking] = useState(true);
+  const [status, setStatus] = useState("Initializing...");
 
   const fetchNextQuestion = useCallback(async () => {
     setStatus("AI is generating the next question...");
@@ -162,7 +160,7 @@ export default function InterviewChamberPage() {
                 <span className={`relative inline-flex rounded-full h-3 w-3 ${isAiThinking ? 'bg-orange-500' : 'bg-red-500'}`}></span>
               </div>
               <span className="font-medium text-sm tracking-widest uppercase text-slate-300">
-                {isAiThinking ? "AI Processing" : "AI Listening"}
+                {status}
               </span>
             </div>
             <div className="h-4 w-px bg-white/20" />

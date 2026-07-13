@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { GlassCard } from "@/components/ui/cards";
-import { Terminal, CheckCircle2, XCircle, ChevronRight, Clock, Cpu } from "lucide-react";
+import { Terminal, CheckCircle2, XCircle, ChevronRight, Clock, Cpu, Type } from "lucide-react";
 import { ExecutionResult } from "@/lib/api/coding";
 
 export interface ConsolePanelProps {
   executionResult?: ExecutionResult | null;
   isExecuting?: boolean;
+  customInput?: string;
+  onCustomInputChange?: (val: string) => void;
 }
 
-export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, isExecuting }: ConsolePanelProps) {
-  const [activeTab, setActiveTab] = useState<"testcases" | "output">("testcases");
+export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, isExecuting, customInput, onCustomInputChange }: ConsolePanelProps) {
+  const [activeTab, setActiveTab] = useState<"testcases" | "custom" | "output">("testcases");
   const [activeTestCase, setActiveTestCase] = useState(0);
 
   // Switch to output tab when executing or when result arrives
@@ -35,6 +37,12 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
             className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "testcases" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
           >
             <CheckCircle2 size={14} className={activeTab === "testcases" ? "text-green-500" : ""} /> Test Cases
+          </button>
+          <button 
+            onClick={() => setActiveTab("custom")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${activeTab === "custom" ? "bg-white/10 text-white" : "text-slate-400 hover:text-white hover:bg-white/5"}`}
+          >
+            <Type size={14} /> Custom Input
           </button>
           <button 
             onClick={() => setActiveTab("output")}
@@ -77,6 +85,23 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
             </div>
           )}
 
+          {activeTab === "custom" && (
+            <div className="flex flex-col h-full">
+              <div className="text-xs font-semibold text-slate-500 mb-2">
+                Define Custom Test Cases (JSON Format)
+              </div>
+              <textarea
+                value={customInput || ""}
+                onChange={(e) => onCustomInputChange?.(e.target.value)}
+                placeholder={'[\n  {\n    "args": [[2,7,11,15], 9],\n    "expected": [0,1]\n  }\n]'}
+                className="flex-1 w-full bg-black/40 border border-white/5 rounded-lg p-3 font-mono text-sm text-slate-300 resize-none outline-none focus:border-red-500/50 transition-colors custom-scrollbar"
+              />
+              <div className="text-[10px] text-slate-500 mt-2">
+                Provide an array of testcase objects with &quot;args&quot; and an optional &quot;expected&quot; output.
+              </div>
+            </div>
+          )}
+
           {activeTab === "output" && (
             <div className="font-mono text-sm h-full flex flex-col">
               {isExecuting ? (
@@ -93,7 +118,7 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
                     {executionResult.status === 'Accepted' || ((executionResult.test_results?.length ?? 0) > 0 && executionResult.failed_count === 0) ? 'Accepted' : executionResult.status}
                     {(executionResult.test_results?.length ?? 0) > 0 && (
                         <span className="text-slate-400 font-normal ml-2 text-xs">
-                          ({executionResult.passed_count}/{executionResult.test_results.length} cases passed)
+                          ({executionResult.passed_count}/{executionResult.test_results?.length ?? 0} cases passed)
                         </span>
                     )}
                   </div>
@@ -108,7 +133,7 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
                   {executionResult.test_results && executionResult.test_results.length > 0 && (
                     <div className="space-y-2 mt-4">
                       {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                      {executionResult.test_results.map((tr: any, idx: number) => (
+                      {executionResult.test_results?.map((tr: any, idx: number) => (
                         <div key={idx} className={`p-3 rounded-lg border ${tr.passed ? 'bg-green-500/10 border-green-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
                           <div className="flex items-center gap-2 font-bold mb-2 text-xs">
                             {tr.passed ? <CheckCircle2 size={14} className="text-green-500"/> : <XCircle size={14} className="text-red-500"/>}

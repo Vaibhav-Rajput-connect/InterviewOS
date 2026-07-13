@@ -17,6 +17,8 @@ export interface CodeEditorProps {
   isExecuting?: boolean;
   isSubmitting?: boolean;
   onCodeChange?: (code: string) => void;
+  customTestcases?: string;
+  sessionId?: string;
 }
 
 const LANGUAGES = [
@@ -45,7 +47,9 @@ export function CodeEditor({
   onSubmitComplete,
   isExecuting, 
   isSubmitting,
-  onCodeChange 
+  onCodeChange,
+  customTestcases,
+  sessionId
 }: CodeEditorProps) {
   const [language, setLanguage] = useState("typescript");
   const [theme, setTheme] = useState("vs-dark");
@@ -81,7 +85,7 @@ export function CodeEditor({
         if (onCodeChange) onCodeChange(fallbackCode);
       }
     }
-  }, [language, problem, userEdited]);
+  }, [language, problem, userEdited, fallbackCode, onCodeChange]);
 
   // Handle click outside for settings popover
   useEffect(() => {

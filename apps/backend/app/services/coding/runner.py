@@ -173,7 +173,7 @@ console.log("---TEST_RESULTS_END---");
             
         return code
 
-    def execute(self, language: str, code: str, problem_id: str = None, test_cases: list = None) -> Dict[str, Any]:
+    def execute(self, language: str, code: str, problem_id: str | None = None, test_cases: list | None = None) -> Dict[str, Any]:
         """
         Orchestrates code execution by setting up the workspace, writing code, 
         and invoking the sandbox.

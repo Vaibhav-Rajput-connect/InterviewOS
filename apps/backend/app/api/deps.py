@@ -3,6 +3,7 @@ FastAPI Dependencies (Auth, DB).
 """
 
 from typing import Annotated
+from typing_extensions import TypeAlias
 import uuid
 
 from fastapi import Depends, HTTPException, status, Request
@@ -18,8 +19,8 @@ from app.core.security import ALGORITHM
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_PREFIX}/auth/login")
 
-DbSession = Annotated[AsyncSession, Depends(get_session)]
-TokenDep = Annotated[str, Depends(oauth2_scheme)]
+DbSession: TypeAlias = Annotated[AsyncSession, Depends(get_session)]
+TokenDep: TypeAlias = Annotated[str, Depends(oauth2_scheme)]
 
 
 async def get_current_user(db: DbSession, token: TokenDep) -> User:
@@ -57,4 +58,4 @@ async def get_current_user(db: DbSession, token: TokenDep) -> User:
     return user
 
 
-CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]

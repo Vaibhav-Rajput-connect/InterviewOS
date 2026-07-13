@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Syne } from "next/font/google";
 import { LenisProvider } from "@/providers/lenis-provider";
 import { QueryProvider } from "@/providers/query-provider";
+import { ConsoleProvider } from "@/providers/console-provider";
 import { ToastContainer } from "@/components/ui/toast";
 import "./globals.css";
 
@@ -72,12 +73,14 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <QueryProvider>
-          <LenisProvider>
-            {children}
-            <ToastContainer />
-          </LenisProvider>
-        </QueryProvider>
+        <ConsoleProvider>
+          <QueryProvider>
+            <LenisProvider>
+              {children}
+              <ToastContainer />
+            </LenisProvider>
+          </QueryProvider>
+        </ConsoleProvider>
       </body>
     </html>
   );

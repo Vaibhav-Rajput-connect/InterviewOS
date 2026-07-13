@@ -21,6 +21,7 @@ export interface ExecutionRequest {
   language: string;
   code: string;
   problem_id?: string;
+  custom_testcases?: any[];
 }
 
 export interface ExecutionResult {

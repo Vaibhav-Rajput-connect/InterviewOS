@@ -83,12 +83,14 @@ export function ResumeScanner() {
       };
       
       pollStatus(data.data.id);
-    } catch (err: any) {
-      console.error("Upload error:", err);
-      if (err.response?.status === 401) {
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const e = err as any;
+      console.error("Upload error:", e);
+      if (e.response?.status === 401) {
         setError("Your session has expired. Please log in again.");
-      } else if (err.response?.data?.detail) {
-        const detail = err.response.data.detail;
+      } else if (e.response?.data?.detail) {
+        const detail = e.response.data.detail;
         if (typeof detail === "string") {
           setError(detail);
         } else if (Array.isArray(detail) && detail.length > 0) {
@@ -97,7 +99,7 @@ export function ResumeScanner() {
           setError(JSON.stringify(detail));
         }
       } else {
-        setError(err.message || "Failed to upload resume.");
+        setError(e.message || "Failed to upload resume.");
       }
       setIsUploading(false);
       setIsScanning(false);
