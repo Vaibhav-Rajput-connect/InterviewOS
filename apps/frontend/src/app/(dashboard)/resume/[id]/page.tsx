@@ -8,7 +8,7 @@ import { GlassCard } from "@/components/ui/cards";
 
 export default function ResumeDashboardPage() {
   const { id } = useParams();
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Record<string, unknown> | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 

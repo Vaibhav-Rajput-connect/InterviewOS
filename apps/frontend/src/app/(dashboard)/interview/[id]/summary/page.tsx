@@ -22,7 +22,7 @@ export default function InterviewSummaryPage() {
   const sessionId = params.id as string;
 
   const [loading, setLoading] = useState(true);
-  const [summary, setSummary] = useState<any>(null);
+  const [summary, setSummary] = useState<Record<string, unknown> | null>(null);
 
   useEffect(() => {
     const fetchSummary = async () => {

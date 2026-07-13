@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
@@ -58,6 +58,22 @@ export default function InterviewChamberPage() {
   const [showNotes, setShowNotes] = useState(false);
   const [isAiThinking, setIsAiThinking] = useState(true);
 
+  const fetchNextQuestion = useCallback(async () => {
+    setStatus("AI is generating the next question...");
+    setIsAiThinking(true);
+    try {
+      const res = await apiClient.post(`/interview/sessions/${sessionId}/next-question`);
+      setQuestionText(res.data.content);
+      setCurrentQuestionId(res.data.id);
+      setIsAiThinking(false);
+      setStatus("Listening...");
+    } catch (err) {
+      console.error("Failed to fetch next question", err);
+      setIsAiThinking(false);
+      setStatus("Error getting question");
+    }
+  }, [sessionId]);
+
   // Initialize session and fetch first question
   useEffect(() => {
     const initSession = async () => {
@@ -85,23 +101,8 @@ export default function InterviewChamberPage() {
       }
     };
     initSession();
-  }, [sessionId, router]);
+  }, [sessionId, router, fetchNextQuestion]);
 
-  const fetchNextQuestion = async () => {
-    setStatus("AI is generating the next question...");
-    setIsAiThinking(true);
-    try {
-      const res = await apiClient.post(`/interview/sessions/${sessionId}/next-question`);
-      setQuestionText(res.data.content);
-      setCurrentQuestionId(res.data.id);
-      setIsAiThinking(false);
-      setStatus("Listening...");
-    } catch (err) {
-      console.error("Failed to fetch next question", err);
-      setIsAiThinking(false);
-      setStatus("Error getting question");
-    }
-  };
 
   const handleSubmitAnswer = async () => {
     if (!answerText.trim() && !isRecording) return;

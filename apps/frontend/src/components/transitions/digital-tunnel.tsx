@@ -68,8 +68,7 @@ export const DigitalTunnelTransition = React.memo(function DigitalTunnelTransiti
       }, 3000);
       return () => clearTimeout(timer);
     } else {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setShow(false);
+            setShow(false);
     }
   }, [isActive, onComplete]);
 

@@ -1,56 +1,59 @@
 import uuid
 import logging
 from typing import Any
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Request
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.api.deps import CurrentUser, DbSession
 from app.models.interview_engine import InterviewSession, InterviewQuestion, InterviewAnswer, InterviewEvaluation
 from app.models.resume import Resume
 from app.services.ai.gateway import AIGateway
+from app.core.rate_limit import limiter
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
 ai_gateway = AIGateway()
 
 class InterviewStartRequest(BaseModel):
-    resume_id: str
-    target_company: str
-    target_role: str
-    difficulty: str
-    interview_type: str
-    duration_minutes: int
+    resume_id: str = Field(..., max_length=36)
+    target_company: str = Field(..., max_length=100)
+    target_role: str = Field(..., max_length=100)
+    difficulty: str = Field(..., max_length=50)
+    interview_type: str = Field(..., max_length=50)
+    duration_minutes: int = Field(..., ge=10, le=120)
 
 class AnswerSubmissionRequest(BaseModel):
-    session_id: str
-    question_id: str
-    content: str
-    audio_url: str | None = None
+    session_id: str = Field(..., max_length=36)
+    question_id: str = Field(..., max_length=36)
+    content: str = Field(..., max_length=5000)
+    audio_url: str | None = Field(None, max_length=2000)
 
 class InterviewEndRequest(BaseModel):
-    session_id: str
+    session_id: str = Field(..., max_length=36)
 
 @router.post("/start", status_code=status.HTTP_201_CREATED)
+@limiter.limit("10/minute")
 async def start_interview(
-    request: InterviewStartRequest,
+    request: Request,
+    payload: InterviewStartRequest,
     db: DbSession,
     current_user: CurrentUser,
 ) -> Any:
     """Create a new AI Interview Session."""
     
     # Verify resume belongs to user
-    resume = await db.get(Resume, uuid.UUID(request.resume_id))
+    resume = await db.get(Resume, uuid.UUID(payload.resume_id))
     if not resume or resume.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Resume not found")
         
     session = InterviewSession(
         user_id=current_user.id,
         resume_id=resume.id,
-        target_company=request.target_company,
-        target_role=request.target_role,
-        difficulty=request.difficulty,
+        target_company=payload.target_company,
+        target_role=payload.target_role,
+        difficulty=payload.difficulty,
         status="in_progress"
     )
     
@@ -65,7 +68,9 @@ async def start_interview(
     }
 
 @router.post("/sessions/{session_id}/next-question")
+@limiter.limit("20/minute")
 async def generate_next_question(
+    request: Request,
     session_id: uuid.UUID,
     db: DbSession,
     current_user: CurrentUser,
@@ -146,16 +151,18 @@ async def generate_next_question(
     }
 
 @router.post("/answer")
+@limiter.limit("20/minute")
 async def submit_answer(
-    request: AnswerSubmissionRequest,
+    request: Request,
+    payload: AnswerSubmissionRequest,
     db: DbSession,
     current_user: CurrentUser,
 ) -> Any:
     """Submit an answer to a question and get an AI evaluation."""
     
     try:
-        session_id = uuid.UUID(request.session_id)
-        question_id = uuid.UUID(request.question_id)
+        session_id = uuid.UUID(payload.session_id)
+        question_id = uuid.UUID(payload.question_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid session_id or question_id")
     
@@ -185,8 +192,8 @@ async def submit_answer(
     answer = InterviewAnswer(
         question_id=question.id,
         user_id=current_user.id,
-        content=request.content,
-        audio_url=request.audio_url
+        content=payload.content,
+        audio_url=payload.audio_url
     )
     db.add(answer)
     await db.commit()
@@ -238,8 +245,10 @@ async def submit_answer(
     }
 
 @router.post("/end")
+@limiter.limit("10/minute")
 async def end_interview(
-    request: InterviewEndRequest,
+    request: Request,
+    payload: InterviewEndRequest,
     db: DbSession,
     current_user: CurrentUser,
 ) -> Any:
@@ -248,7 +257,7 @@ async def end_interview(
     import json
     
     try:
-        session_id = uuid.UUID(request.session_id)
+        session_id = uuid.UUID(payload.session_id)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid session_id")
     
@@ -318,7 +327,9 @@ async def end_interview(
     }
 
 @router.get("/history")
+@limiter.limit("30/minute")
 async def get_interview_history(
+    request: Request,
     db: DbSession,
     current_user: CurrentUser,
 ) -> Any:
@@ -341,7 +352,9 @@ async def get_interview_history(
     ]
 
 @router.get("/{session_id}")
+@limiter.limit("60/minute")
 async def get_interview_session(
+    request: Request,
     session_id: uuid.UUID,
     db: DbSession,
     current_user: CurrentUser,
@@ -370,7 +383,9 @@ async def get_interview_session(
     }
 
 @router.get("/summary/{session_id}")
+@limiter.limit("30/minute")
 async def get_interview_summary(
+    request: Request,
     session_id: uuid.UUID,
     db: DbSession,
     current_user: CurrentUser,

@@ -3,7 +3,7 @@ import logging
 from typing import Type, TypeVar
 from pydantic import BaseModel
 import asyncio
-from app.services.ai.schemas import GeneratedQuestion, AnswerEvaluationResult
+from app.services.ai.schemas import GeneratedQuestion, AnswerEvaluationResult, SessionSummaryResult
 from app.services.ai.prompts.manager import PromptManager
 
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type

@@ -13,7 +13,7 @@ export function TopNavigation() {
   const router = useRouter();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
+  const [, setIsSearching] = useState(false);
   
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLButtonElement>(null);

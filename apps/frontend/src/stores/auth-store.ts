@@ -52,8 +52,7 @@ export const useAuthStore = create<AuthState>()(
         try {
           const res = await apiClient.get<User>("/auth/me");
           set({ user: res.data, isAuthenticated: true });
-        } catch (error) {
-          console.error("Failed to fetch user:", error);
+        } catch {
           set({ user: null, accessToken: null, isAuthenticated: false });
         } finally {
           set({ isLoading: false });

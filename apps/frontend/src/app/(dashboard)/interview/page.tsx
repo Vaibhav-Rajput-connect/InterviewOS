@@ -21,7 +21,7 @@ import {
 export default function InterviewConfigurationPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [resumes, setResumes] = useState<any[]>([]);
+  const [resumes, setResumes] = useState<Record<string, unknown>[]>([]);
 
   // Form State
   const [targetCompany, setTargetCompany] = useState("");
@@ -35,7 +35,9 @@ export default function InterviewConfigurationPage() {
     // Fetch resumes to get the latest one
     apiClient.get("/resume").then((res) => {
       setResumes(res.data);
-    }).catch(console.error);
+    }).catch(() => {
+      // Ignore error silently (e.g. 401 if logged out) to avoid Next.js overlay
+    });
   }, []);
 
   const handleStartInterview = async (e: React.FormEvent) => {
