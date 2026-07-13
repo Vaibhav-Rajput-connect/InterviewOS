@@ -23,6 +23,10 @@ from .interview_engine import (
     InterviewFeedback,
     InterviewSummary,
 )
+from .coding import (
+    CodingProblem,
+    UserProblemStatus,
+)
 from .auth import Session, VerificationToken
 from .activity import ActivityLog, Notification
 from .gamification import Achievement, DailyGoal, UserStats
@@ -52,4 +56,6 @@ __all__ = [
     "ResumeProject",
     "Technology",
     "Embedding",
+    "CodingProblem",
+    "UserProblemStatus",
 ]

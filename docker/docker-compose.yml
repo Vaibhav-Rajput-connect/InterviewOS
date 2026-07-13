@@ -40,6 +40,8 @@ services:
       LOG_LEVEL: DEBUG
     ports:
       - "8000:8000"
+    volumes:
+      - ../apps/backend:/app
     depends_on:
       db:
         condition: service_healthy

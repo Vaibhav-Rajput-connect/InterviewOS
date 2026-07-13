@@ -139,3 +139,80 @@ class AIGateway:
             SessionSummaryResult,
             system_prompt
         )
+
+    # ==============================================================
+    # Coding Assistant (Copilot)
+    # ==============================================================
+
+    async def generate_coding_hints(
+        self,
+        problem_description: str,
+        current_code: str
+    ) -> GeneratedHintList:
+        from app.services.ai.schemas import GeneratedHintList
+        
+        prompt = PromptManager.get_prompt(
+            category="coding",
+            prompt_name="hints",
+            version="v1",
+            problem_description=problem_description,
+            current_code=current_code
+        )
+        
+        system_prompt = "You are an expert technical interviewer helping a candidate without revealing the solution."
+        
+        return await asyncio.to_thread(
+            self.generate_structured_output,
+            prompt,
+            GeneratedHintList,
+            system_prompt
+        )
+
+    async def analyze_code_complexity(
+        self,
+        problem_description: str,
+        current_code: str
+    ) -> ComplexityAnalysisResult:
+        from app.services.ai.schemas import ComplexityAnalysisResult
+        
+        prompt = PromptManager.get_prompt(
+            category="coding",
+            prompt_name="complexity",
+            version="v1",
+            problem_description=problem_description,
+            current_code=current_code
+        )
+        
+        system_prompt = "You are an expert technical interviewer performing time and space complexity analysis."
+        
+        return await asyncio.to_thread(
+            self.generate_structured_output,
+            prompt,
+            ComplexityAnalysisResult,
+            system_prompt
+        )
+
+    async def chat_with_copilot(
+        self,
+        problem_description: str,
+        current_code: str,
+        user_message: str,
+        chat_history: str = ""
+    ) -> str:
+        prompt = PromptManager.get_prompt(
+            category="coding",
+            prompt_name="copilot_chat",
+            version="v1",
+            problem_description=problem_description,
+            current_code=current_code,
+            user_message=user_message,
+            chat_history=chat_history
+        )
+        
+        system_prompt = "You are an expert AI Coding Interview Coach acting as a Copilot."
+        
+        return await asyncio.to_thread(
+            self.generate_text,
+            prompt,
+            system_prompt
+        )

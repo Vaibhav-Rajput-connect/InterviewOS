@@ -17,10 +17,13 @@ from app.db.base import Base
 
 # Import all models so they are registered with Base.metadata
 from app.models import (
-    User, Resume, Interview, Question, Answer, Session, VerificationToken, 
-    Profile, ActivityLog, Notification, Achievement, DailyGoal, UserStats,
-    ResumeAnalysis, ResumeSection, ResumeSkill, ResumeExperience, 
-    ResumeEducation, ResumeProject, Technology, Embedding
+    User, Profile, Resume, InterviewSession, InterviewQuestion, InterviewAnswer,
+    InterviewEvaluation, InterviewFeedback, InterviewSummary,
+    CodingProblem, UserProblemStatus,
+    Session, VerificationToken, ActivityLog, Notification,
+    Achievement, DailyGoal, UserStats, ResumeAnalysis, ResumeSection,
+    ResumeSkill, ResumeExperience, ResumeEducation, ResumeProject,
+    Technology, Embedding
 )  # noqa: F401
 from app.core.config import settings
 

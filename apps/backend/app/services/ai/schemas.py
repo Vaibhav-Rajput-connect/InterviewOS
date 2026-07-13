@@ -70,3 +70,21 @@ class SessionSummaryResult(BaseModel):
     weaknesses: List[str] = Field(description="Top 3 to 5 areas of weakness or missing knowledge.")
     recommended_topics: List[str] = Field(description="Specific topics the candidate should study or practice before a real interview.")
     next_learning_plan: str = Field(description="A concise, actionable learning plan summarizing how the candidate can improve.")
+
+# ==========================================
+# Coding Assistant Schemas
+# ==========================================
+
+class GeneratedHint(BaseModel):
+    title: str = Field(description="Short title for the hint (e.g., 'Hint 1').")
+    content: str = Field(description="The hint content, keeping it progressive and not revealing the full solution.")
+
+class GeneratedHintList(BaseModel):
+    hints: List[GeneratedHint] = Field(description="List of progressive hints for the coding problem.")
+
+class ComplexityAnalysisResult(BaseModel):
+    time_complexity: str = Field(description="Big-O notation for time complexity (e.g. O(N)).")
+    space_complexity: str = Field(description="Big-O notation for space complexity (e.g. O(1)).")
+    time_reasoning: str = Field(description="Brief explanation of why the time complexity is what it is.")
+    space_reasoning: str = Field(description="Brief explanation of why the space complexity is what it is.")
+    overall_feedback: str = Field(description="One sentence overall feedback on efficiency.")
