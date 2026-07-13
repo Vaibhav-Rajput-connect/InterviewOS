@@ -88,3 +88,13 @@ class ComplexityAnalysisResult(BaseModel):
     time_reasoning: str = Field(description="Brief explanation of why the time complexity is what it is.")
     space_reasoning: str = Field(description="Brief explanation of why the space complexity is what it is.")
     overall_feedback: str = Field(description="One sentence overall feedback on efficiency.")
+
+class SubmissionEvaluationResult(BaseModel):
+    correctness_score: int = Field(description="Score out of 100 for correctness of logic.")
+    code_quality_score: int = Field(description="Score out of 100 for code quality, naming, and structure.")
+    time_complexity: str = Field(description="Big-O time complexity of the submission.")
+    space_complexity: str = Field(description="Big-O space complexity of the submission.")
+    readability_feedback: str = Field(description="Feedback on variable naming, formatting, and general readability.")
+    best_practices_feedback: str = Field(description="Feedback on whether language-specific best practices were used.")
+    edge_case_feedback: str = Field(description="Analysis of what edge cases this code handles well or misses.")
+    optimization_suggestions: str = Field(description="Constructive suggestions for optimizing time, space, or elegance.")

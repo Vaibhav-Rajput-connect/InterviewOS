@@ -42,27 +42,42 @@ export const codingApi = {
   },
   
   getProblem: async (id: string): Promise<CodingProblem> => {
-    const { data } = await api.get(`/coding/problems/${id}`);
+    const { data } = await api.get(`/coding/problem/${id}`);
     return data;
   },
 
   toggleBookmark: async (id: string): Promise<{bookmarked: boolean}> => {
-    const { data } = await api.post(`/coding/problems/${id}/bookmark`);
+    const { data } = await api.post(`/coding/problem/${id}/bookmark`);
     return data;
   },
   
   executeCode: async (payload: ExecutionRequest): Promise<ExecutionResult> => {
-    const { data } = await api.post("/coding/execute", payload);
+    const { data } = await api.post("/coding/run", payload);
+    return data;
+  },
+
+  submitCode: async (payload: ExecutionRequest): Promise<any> => {
+    const { data } = await api.post("/coding/submit", payload);
+    return data;
+  },
+
+  getSubmissions: async (params?: { problem_id?: string, skip?: number, limit?: number }): Promise<any> => {
+    const { data } = await api.get("/coding/submissions", { params });
+    return data;
+  },
+
+  getSubmission: async (id: string): Promise<any> => {
+    const { data } = await api.get(`/coding/submission/${id}`);
     return data;
   },
 
   getHints: async (problemId: string, currentCode: string) => {
-    const { data } = await api.post("/coding/assistant/hints", { problem_id: problemId, current_code: currentCode });
+    const { data } = await api.post("/coding/hint", { problem_id: problemId, current_code: currentCode });
     return data; // { hints: [...] }
   },
 
   analyzeComplexity: async (problemId: string, currentCode: string) => {
-    const { data } = await api.post("/coding/assistant/complexity", { problem_id: problemId, current_code: currentCode });
+    const { data } = await api.post("/coding/review", { problem_id: problemId, current_code: currentCode });
     return data;
   },
 

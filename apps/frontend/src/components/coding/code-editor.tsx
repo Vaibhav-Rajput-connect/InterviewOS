@@ -4,12 +4,16 @@ import { GlassCard } from "@/components/ui/cards";
 import { Settings, Play, CloudLightning, Save, Monitor, Type, Layout, Check, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { codingApi, ExecutionResult } from "@/lib/api/coding";
+import { useQuery } from "@tanstack/react-query";
 
 export interface CodeEditorProps {
   problemId?: string;
   onExecuteStart?: () => void;
   onExecuteComplete?: (result: ExecutionResult) => void;
+  onSubmitStart?: () => void;
+  onSubmitComplete?: (result: any) => void;
   isExecuting?: boolean;
+  isSubmitting?: boolean;
   onCodeChange?: (code: string) => void;
 }
 
@@ -31,7 +35,16 @@ const THEMES = [
 
 const FONT_SIZES = [12, 14, 16, 18, 20];
 
-export function CodeEditor({ problemId, onExecuteStart, onExecuteComplete, isExecuting, onCodeChange }: CodeEditorProps) {
+export function CodeEditor({ 
+  problemId, 
+  onExecuteStart, 
+  onExecuteComplete, 
+  onSubmitStart,
+  onSubmitComplete,
+  isExecuting, 
+  isSubmitting,
+  onCodeChange 
+}: CodeEditorProps) {
   const [language, setLanguage] = useState("typescript");
   const [theme, setTheme] = useState("vs-dark");
   const [fontSize, setFontSize] = useState(14);
@@ -42,26 +55,31 @@ export function CodeEditor({ problemId, onExecuteStart, onExecuteComplete, isExe
   const [isSaved, setIsSaved] = useState(true);
   const settingsRef = useRef<HTMLDivElement>(null);
 
-  const defaultCode = `function twoSum(nums: number[], target: number): number[] {
-    const map = new Map<number, number>();
-    
-    for (let i = 0; i < nums.length; i++) {
-        const complement = target - nums[i];
-        if (map.has(complement)) {
-            return [map.get(complement)!, i];
-        }
-        map.set(nums[i], i);
-    }
-    
-    return [];
-};`;
+  // Default fallback code if problem boilerplate is missing
+  const fallbackCode = `// Write your code here...`;
 
-  const [code, setCode] = useState(defaultCode);
+  const [code, setCode] = useState(fallbackCode);
+  const [userEdited, setUserEdited] = useState(false);
 
-  // Initialize parent with default code
+  // Fetch problem data to get boilerplate
+  const { data: problem } = useQuery({
+    queryKey: ["coding-problem", problemId],
+    queryFn: () => codingApi.getProblem(problemId!),
+    enabled: !!problemId
+  });
+
+  // Apply boilerplate when language or problem changes (only if user hasn't edited)
   useEffect(() => {
-    if (onCodeChange) onCodeChange(defaultCode);
-  }, []);
+    if (!userEdited) {
+      if (problem?.boilerplate && problem.boilerplate[language]) {
+        setCode(problem.boilerplate[language]);
+        if (onCodeChange) onCodeChange(problem.boilerplate[language]);
+      } else {
+        setCode(fallbackCode);
+        if (onCodeChange) onCodeChange(fallbackCode);
+      }
+    }
+  }, [language, problem, userEdited]);
 
   // Handle click outside for settings popover
   useEffect(() => {
@@ -90,6 +108,7 @@ export function CodeEditor({ problemId, onExecuteStart, onExecuteComplete, isExe
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined) {
       setCode(value);
+      setUserEdited(true);
       setIsSaved(false);
       if (onCodeChange) onCodeChange(value);
     }
@@ -114,6 +133,27 @@ export function CodeEditor({ problemId, onExecuteStart, onExecuteComplete, isExe
         exit_code: -1,
         time_ms: 0,
         status: "Network Error"
+      });
+    }
+  };
+
+  const handleSubmitCode = async () => {
+    if (!onSubmitStart || !onSubmitComplete) return;
+    
+    onSubmitStart();
+    try {
+      const result = await codingApi.submitCode({
+        language,
+        code,
+        problem_id: problemId
+      });
+      onSubmitComplete(result);
+    } catch (error) {
+      console.error("Submission failed:", error);
+      onSubmitComplete({
+        status: "error",
+        execution: null,
+        evaluation: null,
       });
     }
   };
@@ -232,7 +272,7 @@ export function CodeEditor({ problemId, onExecuteStart, onExecuteComplete, isExe
           <div className="flex items-center gap-2">
             <button 
               onClick={handleRunCode}
-              disabled={isExecuting}
+              disabled={isExecuting || isSubmitting}
               className={`flex items-center gap-2 px-4 py-1.5 border border-white/10 rounded-lg text-sm font-medium transition-colors ${
                 isExecuting 
                   ? "bg-white/10 text-slate-500 cursor-not-allowed" 
@@ -246,8 +286,17 @@ export function CodeEditor({ problemId, onExecuteStart, onExecuteComplete, isExe
               )}
               {isExecuting ? "Running..." : "Run Code"}
             </button>
-            <button className="flex items-center gap-2 px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)]">
-              <CloudLightning size={14} /> Submit
+            <button 
+              onClick={handleSubmitCode}
+              disabled={isExecuting || isSubmitting}
+              className="flex items-center gap-2 px-4 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm font-medium transition-colors shadow-[0_0_15px_rgba(239,68,68,0.3)] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSubmitting ? (
+                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <CloudLightning size={14} />
+              )}
+              {isSubmitting ? "Submitting..." : "Submit"}
             </button>
           </div>
         </div>

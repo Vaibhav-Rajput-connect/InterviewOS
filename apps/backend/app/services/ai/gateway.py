@@ -148,7 +148,7 @@ class AIGateway:
         self,
         problem_description: str,
         current_code: str
-    ) -> GeneratedHintList:
+    ) -> "GeneratedHintList":
         from app.services.ai.schemas import GeneratedHintList
         
         prompt = PromptManager.get_prompt(
@@ -172,7 +172,7 @@ class AIGateway:
         self,
         problem_description: str,
         current_code: str
-    ) -> ComplexityAnalysisResult:
+    ) -> "ComplexityAnalysisResult":
         from app.services.ai.schemas import ComplexityAnalysisResult
         
         prompt = PromptManager.get_prompt(
@@ -214,5 +214,32 @@ class AIGateway:
         return await asyncio.to_thread(
             self.generate_text,
             prompt,
+            system_prompt
+        )
+
+    async def evaluate_code_submission(
+        self,
+        problem_description: str,
+        current_code: str,
+        execution_result: dict
+    ) -> "SubmissionEvaluationResult":
+        from app.services.ai.schemas import SubmissionEvaluationResult
+        import json
+        
+        prompt = PromptManager.get_prompt(
+            category="coding",
+            prompt_name="evaluate_submission",
+            version="v1",
+            problem_description=problem_description,
+            current_code=current_code,
+            execution_result=json.dumps(execution_result, indent=2)
+        )
+        
+        system_prompt = "You are a Principal Software Engineer performing a code review."
+        
+        return await asyncio.to_thread(
+            self.generate_structured_output,
+            prompt,
+            SubmissionEvaluationResult,
             system_prompt
         )

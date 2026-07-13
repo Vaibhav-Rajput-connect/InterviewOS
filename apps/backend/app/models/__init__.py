@@ -26,6 +26,12 @@ from .interview_engine import (
 from .coding import (
     CodingProblem,
     UserProblemStatus,
+    CodingSubmission,
+    ProblemTag,
+    ProblemCompany,
+    SubmissionResult,
+    ExecutionLog,
+    CodingHint,
 )
 from .auth import Session, VerificationToken
 from .activity import ActivityLog, Notification
@@ -58,4 +64,10 @@ __all__ = [
     "Embedding",
     "CodingProblem",
     "UserProblemStatus",
+    "CodingSubmission",
+    "ProblemTag",
+    "ProblemCompany",
+    "SubmissionResult",
+    "ExecutionLog",
+    "CodingHint",
 ]

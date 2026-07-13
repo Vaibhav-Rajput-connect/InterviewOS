@@ -2,21 +2,28 @@
 
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { ProblemPanel } from "@/components/coding/problem-panel";
-import { CodeEditor } from "@/components/coding/code-editor";
 import { AIPanel } from "@/components/coding/ai-panel";
 import { ConsolePanel } from "@/components/coding/console-panel";
 import { GripVertical, GripHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { use, useState } from "react";
+import { use, useState, useRef } from "react";
 import { ExecutionResult } from "@/lib/api/coding";
+import { SubmissionModal } from "@/components/coding/submission-modal";
+import dynamic from "next/dynamic";
+
+const CodeEditor = dynamic(() => import("@/components/coding/code-editor").then(mod => mod.CodeEditor), { ssr: false });
 
 export default function CodingArenaPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   
   const [executionResult, setExecutionResult] = useState<ExecutionResult | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
-  const [currentCode, setCurrentCode] = useState("");
+  const currentCodeRef = useRef("");
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <motion.div 
@@ -27,7 +34,13 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
       <PanelGroup direction="horizontal" className="w-full h-full">
         {/* Left Panel: Problem Description */}
         <Panel defaultSize={30} minSize={20}>
-          <ProblemPanel problemId={id} />
+          <ProblemPanel 
+            problemId={id} 
+            onViewSubmission={(result) => {
+              setSubmissionResult(result);
+              setIsModalOpen(true);
+            }}
+          />
         </Panel>
 
         <PanelResizeHandle className="w-2 flex items-center justify-center group cursor-col-resize">
@@ -47,8 +60,15 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
                   setExecutionResult(res);
                   setIsExecuting(false);
                 }}
+                onSubmitStart={() => setIsSubmitting(true)}
+                onSubmitComplete={(res) => {
+                  setSubmissionResult(res);
+                  setIsSubmitting(false);
+                  setIsModalOpen(true);
+                }}
                 isExecuting={isExecuting}
-                onCodeChange={(code) => setCurrentCode(code)}
+                isSubmitting={isSubmitting}
+                onCodeChange={(code) => { currentCodeRef.current = code; }}
               />
             </Panel>
             
@@ -75,9 +95,15 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
 
         {/* Right Panel: AI Copilot */}
         <Panel defaultSize={25} minSize={20}>
-          <AIPanel problemId={id} currentCode={currentCode} />
+          <AIPanel problemId={id} getCurrentCode={() => currentCodeRef.current} />
         </Panel>
       </PanelGroup>
+
+      <SubmissionModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        result={submissionResult} 
+      />
     </motion.div>
   );
 }

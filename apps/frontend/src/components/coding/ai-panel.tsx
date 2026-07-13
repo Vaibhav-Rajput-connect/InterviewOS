@@ -6,10 +6,10 @@ import { codingApi } from "@/lib/api/coding";
 
 export interface AIPanelProps {
   problemId: string;
-  currentCode: string;
+  getCurrentCode: () => string;
 }
 
-export function AIPanel({ problemId, currentCode }: AIPanelProps) {
+export const AIPanel = React.memo(function AIPanel({ problemId, getCurrentCode }: AIPanelProps) {
   const [activeTab, setActiveTab] = useState<"chat" | "hints" | "complexity">("chat");
 
   // Chat State
@@ -46,7 +46,7 @@ export function AIPanel({ problemId, currentCode }: AIPanelProps) {
 
     try {
       const historyStr = newMessages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join("\n");
-      const res = await codingApi.chatWithCopilot(problemId, currentCode, userMessage, historyStr);
+      const res = await codingApi.chatWithCopilot(problemId, getCurrentCode(), userMessage, historyStr);
       setChatMessages([...newMessages, { role: 'assistant', content: res.response }]);
     } catch (error) {
       console.error(error);
@@ -60,7 +60,7 @@ export function AIPanel({ problemId, currentCode }: AIPanelProps) {
     if (isHintsLoading) return;
     setIsHintsLoading(true);
     try {
-      const res = await codingApi.getHints(problemId, currentCode);
+      const res = await codingApi.getHints(problemId, getCurrentCode());
       setHints(res.hints);
       setRevealedHints([0]); // Reveal the first hint by default
     } catch (error) {
@@ -74,7 +74,7 @@ export function AIPanel({ problemId, currentCode }: AIPanelProps) {
     if (isComplexityLoading) return;
     setIsComplexityLoading(true);
     try {
-      const res = await codingApi.analyzeComplexity(problemId, currentCode);
+      const res = await codingApi.analyzeComplexity(problemId, getCurrentCode());
       setComplexityResult(res);
     } catch (error) {
       console.error(error);
@@ -300,4 +300,4 @@ export function AIPanel({ problemId, currentCode }: AIPanelProps) {
       </GlassCard>
     </div>
   );
-}
+});

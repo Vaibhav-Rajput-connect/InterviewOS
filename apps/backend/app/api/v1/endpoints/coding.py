@@ -46,7 +46,11 @@ async def get_problems(
     """
     Retrieve coding problems with optional filtering and search.
     """
-    query = select(CodingProblem)
+    from sqlalchemy.orm import selectinload
+    query = select(CodingProblem).options(
+        selectinload(CodingProblem.tags),
+        selectinload(CodingProblem.companies)
+    )
     
     if difficulty:
         query = query.filter(CodingProblem.difficulty == difficulty)
@@ -76,21 +80,21 @@ async def get_problems(
     
     response = []
     for p in problems:
-        status = statuses.get(p.id)
+        status_obj = statuses.get(p.id)
         response.append({
             "id": p.id,
             "title": p.title,
             "slug": p.slug,
             "difficulty": p.difficulty,
-            "topics": p.topics,
-            "companies": p.companies,
-            "status": status.status if status else "untouched",
-            "bookmarked": status.bookmarked if status else False,
+            "topics": [t.name for t in p.tags],
+            "companies": [c.name for c in p.companies],
+            "status": status_obj.status if status_obj else "untouched",
+            "bookmarked": status_obj.bookmarked if status_obj else False,
         })
         
     return response
 
-@router.get("/problems/{id}")
+@router.get("/problem/{id}")
 async def get_problem(
     id: uuid.UUID,
     db: deps.DbSession,
@@ -99,7 +103,14 @@ async def get_problem(
     """
     Get a specific coding problem by ID.
     """
-    problem = await db.get(CodingProblem, id)
+    query = select(CodingProblem).options(
+        selectinload(CodingProblem.tags),
+        selectinload(CodingProblem.companies)
+    ).where(CodingProblem.id == id)
+    
+    result = await db.execute(query)
+    problem = result.scalar_one_or_none()
+    
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
         
@@ -108,7 +119,7 @@ async def get_problem(
         UserProblemStatus.problem_id == problem.id
     )
     result = await db.execute(status_query)
-    status = result.scalar_one_or_none()
+    status_obj = result.scalar_one_or_none()
     
     return {
         "id": problem.id,
@@ -118,14 +129,14 @@ async def get_problem(
         "description": problem.description,
         "constraints": problem.constraints,
         "examples": problem.examples,
-        "companies": problem.companies,
-        "topics": problem.topics,
+        "companies": [c.name for c in problem.companies],
+        "topics": [t.name for t in problem.tags],
         "boilerplate": problem.boilerplate,
-        "status": status.status if status else "untouched",
-        "bookmarked": status.bookmarked if status else False,
+        "status": status_obj.status if status_obj else "untouched",
+        "bookmarked": status_obj.bookmarked if status_obj else False,
     }
 
-@router.post("/problems/{id}/bookmark")
+@router.post("/problem/{id}/bookmark")
 async def toggle_bookmark(
     id: uuid.UUID,
     db: deps.DbSession,
@@ -159,7 +170,7 @@ async def toggle_bookmark(
     
     return {"bookmarked": status.bookmarked}
 
-@router.post("/execute", response_model=ExecutionResult)
+@router.post("/run", response_model=ExecutionResult)
 async def execute_code(
     request: ExecutionRequest,
     current_user: deps.CurrentUser,
@@ -186,6 +197,129 @@ async def execute_code(
     return ExecutionResult(**result)
 
 
+@router.post("/submit")
+async def submit_code(
+    request: ExecutionRequest,
+    current_user: deps.CurrentUser,
+    db: deps.DbSession,
+) -> Any:
+    """
+    Execute code, run AI evaluation, save submission, and update status.
+    """
+    if not request.problem_id:
+        raise HTTPException(status_code=400, detail="problem_id is required for submission")
+
+    problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+
+    # 1. Save Pending Submission
+    from app.models.coding import CodingSubmission, UserProblemStatus, ExecutionLog, SubmissionResult
+    from sqlalchemy import select
+    from datetime import datetime, timezone
+    
+    submission = CodingSubmission(
+        user_id=current_user.id,
+        problem_id=problem.id,
+        code=request.code,
+        language=request.language,
+        status="pending"
+    )
+    db.add(submission)
+    await db.commit()
+    await db.refresh(submission)
+
+    # 2. Run Code Execution
+    runner = CodeRunner()
+    exec_result = runner.execute(
+        language=request.language,
+        code=request.code,
+        problem_id=request.problem_id,
+        test_cases=problem.test_cases
+    )
+    
+    # 3. AI Evaluation
+    from app.services.ai.gateway import AIGateway
+    gateway = AIGateway()
+    
+    eval_result = None
+    try:
+        eval_result = await gateway.evaluate_code_submission(
+            problem_description=problem.description,
+            current_code=request.code,
+            execution_result=exec_result
+        )
+    except Exception as e:
+        print(f"Error during AI evaluation: {e}")
+
+    # 4. Update Submission and save related logs
+    is_success = exec_result.get("exit_code") == 0 and exec_result.get("fail_count", 0) == 0
+    submission.status = "success" if is_success else "failed"
+    
+    # Save ExecutionLog
+    exec_log = ExecutionLog(
+        submission_id=submission.id,
+        stdout=exec_result.get("stdout"),
+        stderr=exec_result.get("stderr"),
+        exit_code=exec_result.get("exit_code"),
+        time_ms=exec_result.get("time_ms"),
+        memory_kb=exec_result.get("memory_kb"),
+        pass_count=exec_result.get("pass_count"),
+        fail_count=exec_result.get("fail_count"),
+        total_cases=exec_result.get("total_cases"),
+        status=exec_result.get("status"),
+    )
+    db.add(exec_log)
+    
+    # Save SubmissionResult
+    eval_dict = {}
+    if eval_result:
+        eval_dict = eval_result.model_dump()
+        sub_res = SubmissionResult(
+            submission_id=submission.id,
+            correctness_score=eval_dict.get("correctness_score"),
+            code_quality_score=eval_dict.get("code_quality_score"),
+            time_complexity=eval_dict.get("time_complexity"),
+            space_complexity=eval_dict.get("space_complexity"),
+            readability_feedback=eval_dict.get("readability_feedback"),
+            best_practices_feedback=eval_dict.get("best_practices_feedback"),
+            edge_case_feedback=eval_dict.get("edge_case_feedback"),
+            optimization_suggestions=eval_dict.get("optimization_suggestions")
+        )
+        db.add(sub_res)
+    
+    # 5. Update User Status
+    stmt = select(UserProblemStatus).where(
+        UserProblemStatus.user_id == current_user.id,
+        UserProblemStatus.problem_id == problem.id
+    )
+    result = await db.execute(stmt)
+    user_status = result.scalar_one_or_none()
+    
+    if not user_status:
+        user_status = UserProblemStatus(
+            user_id=current_user.id,
+            problem_id=problem.id,
+            status="solved" if is_success else "attempted",
+            last_attempted_at=datetime.now(timezone.utc)
+        )
+        db.add(user_status)
+    else:
+        user_status.last_attempted_at = datetime.now(timezone.utc)
+        if is_success and user_status.status != "solved":
+            user_status.status = "solved"
+            user_status.solved_at = datetime.now(timezone.utc)
+            
+    await db.commit()
+    
+    return {
+        "submission_id": str(submission.id),
+        "status": submission.status,
+        "execution": exec_result,
+        "evaluation": eval_dict
+    }
+
+
 # ==========================================
 # Coding Assistant Endpoints
 # ==========================================
@@ -198,7 +332,7 @@ class ChatRequest(AssistantRequest):
     user_message: str
     chat_history: str = ""
 
-@router.post("/assistant/hints")
+@router.post("/hint")
 async def get_coding_hints(
     request: AssistantRequest,
     current_user: deps.CurrentUser,
@@ -214,9 +348,21 @@ async def get_coding_hints(
         problem_description=problem.description,
         current_code=request.current_code
     )
+    
+    from app.models.coding import CodingHint
+    for hint in result.hints:
+        hint_model = CodingHint(
+            user_id=current_user.id,
+            problem_id=problem.id,
+            code_snapshot=request.current_code,
+            hint_text=hint
+        )
+        db.add(hint_model)
+    await db.commit()
+    
     return result
 
-@router.post("/assistant/complexity")
+@router.post("/review")
 async def analyze_complexity(
     request: AssistantRequest,
     current_user: deps.CurrentUser,
@@ -253,3 +399,91 @@ async def copilot_chat(
         chat_history=request.chat_history
     )
     return {"response": result}
+
+@router.get("/submissions")
+async def get_submissions(
+    db: deps.DbSession,
+    current_user: deps.CurrentUser,
+    problem_id: str = None,
+    skip: int = Query(0, ge=0),
+    limit: int = Query(20, ge=1, le=100)
+) -> Any:
+    """
+    Get a list of submissions for the current user.
+    """
+    from app.models.coding import CodingSubmission
+    from sqlalchemy.orm import selectinload
+    from sqlalchemy import desc
+    
+    query = select(CodingSubmission).filter(CodingSubmission.user_id == current_user.id)
+    
+    if problem_id:
+        query = query.filter(CodingSubmission.problem_id == uuid.UUID(problem_id))
+        
+    query = query.order_by(desc(CodingSubmission.created_at)).offset(skip).limit(limit)
+    
+    result = await db.execute(query)
+    submissions = result.scalars().all()
+    
+    return [
+        {
+            "id": s.id,
+            "problem_id": s.problem_id,
+            "language": s.language,
+            "status": s.status,
+            "created_at": s.created_at
+        }
+        for s in submissions
+    ]
+
+@router.get("/submission/{id}")
+async def get_submission(
+    id: uuid.UUID,
+    db: deps.DbSession,
+    current_user: deps.CurrentUser,
+) -> Any:
+    """
+    Get details of a specific submission.
+    """
+    from app.models.coding import CodingSubmission
+    from sqlalchemy.orm import selectinload
+    
+    query = select(CodingSubmission).options(
+        selectinload(CodingSubmission.execution_log),
+        selectinload(CodingSubmission.evaluation_result)
+    ).where(CodingSubmission.id == id, CodingSubmission.user_id == current_user.id)
+    
+    result = await db.execute(query)
+    submission = result.scalar_one_or_none()
+    
+    if not submission:
+        raise HTTPException(status_code=404, detail="Submission not found")
+        
+    return {
+        "id": submission.id,
+        "problem_id": submission.problem_id,
+        "code": submission.code,
+        "language": submission.language,
+        "status": submission.status,
+        "created_at": submission.created_at,
+        "execution_log": {
+            "stdout": submission.execution_log.stdout if submission.execution_log else None,
+            "stderr": submission.execution_log.stderr if submission.execution_log else None,
+            "exit_code": submission.execution_log.exit_code if submission.execution_log else None,
+            "time_ms": submission.execution_log.time_ms if submission.execution_log else None,
+            "memory_kb": submission.execution_log.memory_kb if submission.execution_log else None,
+            "pass_count": submission.execution_log.pass_count if submission.execution_log else None,
+            "fail_count": submission.execution_log.fail_count if submission.execution_log else None,
+            "status": submission.execution_log.status if submission.execution_log else None,
+        } if submission.execution_log else None,
+        "evaluation": {
+            "correctness_score": submission.evaluation_result.correctness_score if submission.evaluation_result else None,
+            "code_quality_score": submission.evaluation_result.code_quality_score if submission.evaluation_result else None,
+            "time_complexity": submission.evaluation_result.time_complexity if submission.evaluation_result else None,
+            "space_complexity": submission.evaluation_result.space_complexity if submission.evaluation_result else None,
+            "readability_feedback": submission.evaluation_result.readability_feedback if submission.evaluation_result else None,
+            "best_practices_feedback": submission.evaluation_result.best_practices_feedback if submission.evaluation_result else None,
+            "edge_case_feedback": submission.evaluation_result.edge_case_feedback if submission.evaluation_result else None,
+            "optimization_suggestions": submission.evaluation_result.optimization_suggestions if submission.evaluation_result else None,
+        } if submission.evaluation_result else None
+    }

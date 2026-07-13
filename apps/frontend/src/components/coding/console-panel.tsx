@@ -8,7 +8,7 @@ export interface ConsolePanelProps {
   isExecuting?: boolean;
 }
 
-export function ConsolePanel({ executionResult, isExecuting }: ConsolePanelProps) {
+export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, isExecuting }: ConsolePanelProps) {
   const [activeTab, setActiveTab] = useState<"testcases" | "output">("testcases");
   const [activeTestCase, setActiveTestCase] = useState(0);
 
@@ -172,4 +172,4 @@ export function ConsolePanel({ executionResult, isExecuting }: ConsolePanelProps
       </GlassCard>
     </div>
   );
-}
+});
