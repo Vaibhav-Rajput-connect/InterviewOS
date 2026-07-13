@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { GlassCard } from "@/components/ui/cards";
 import { Tag, AlertCircle, FileText, History, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { codingApi } from "@/lib/api/coding";
 
-export const ProblemPanel = React.memo(function ProblemPanel({ problemId, onViewSubmission }: { problemId: string, onViewSubmission?: (result: any) => void }) {
+export const ProblemPanel = React.memo(function ProblemPanel({ problemId, onViewSubmission }: { problemId: string, onViewSubmission?: (result: unknown) => void }) {
   const [activeTab, setActiveTab] = useState<"description" | "submissions">("description");
 
   const { data: problem, isLoading, isError } = useQuery({

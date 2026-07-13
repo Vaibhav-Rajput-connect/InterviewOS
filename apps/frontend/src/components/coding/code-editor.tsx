@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { GlassCard } from "@/components/ui/cards";

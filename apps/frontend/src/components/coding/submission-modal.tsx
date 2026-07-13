@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, XCircle, X, ChevronRight, Zap, Code, ShieldAlert, Cpu, Brain, Flame } from "lucide-react";
+import { CheckCircle2, XCircle, X, Zap, Code, ShieldAlert, Cpu, Brain, Flame } from "lucide-react";
 import { GlassCard } from "@/components/ui/cards";
 
 export interface SubmissionModalProps {
@@ -34,7 +35,7 @@ export const SubmissionModal = React.memo(function SubmissionModal({ isOpen, onC
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="relative w-full max-w-4xl max-h-[90vh] flex flex-col"
           >
-            <GlassCard className="flex flex-col h-full overflow-hidden" glow={isSuccess ? "green" : "red"}>
+            <GlassCard className="flex flex-col h-full overflow-hidden" glow={isSuccess ? "none" : "red"}>
               {/* Header */}
               <div className={`p-6 border-b border-white/10 flex items-center justify-between ${isSuccess ? "bg-green-500/10" : "bg-red-500/10"}`}>
                 <div className="flex items-center gap-4">

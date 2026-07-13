@@ -15,7 +15,6 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
   // Switch to output tab when executing or when result arrives
   useEffect(() => {
     if (isExecuting || executionResult) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab("output");
     }
   }, [isExecuting, executionResult]);
@@ -88,11 +87,11 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
               ) : executionResult ? (
                 <div className="space-y-4">
                   <div className={`flex items-center gap-2 font-bold ${
-                    executionResult.status === 'Accepted' || (executionResult.test_results?.length > 0 && executionResult.failed_count === 0) ? 'text-green-500' : 'text-red-500'
+                    executionResult.status === 'Accepted' || ((executionResult.test_results?.length ?? 0) > 0 && executionResult.failed_count === 0) ? 'text-green-500' : 'text-red-500'
                   }`}>
-                    {executionResult.status === 'Accepted' || (executionResult.test_results?.length > 0 && executionResult.failed_count === 0) ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
-                    {executionResult.status === 'Accepted' || (executionResult.test_results?.length > 0 && executionResult.failed_count === 0) ? 'Accepted' : executionResult.status}
-                    {executionResult.test_results?.length > 0 && (
+                    {executionResult.status === 'Accepted' || ((executionResult.test_results?.length ?? 0) > 0 && executionResult.failed_count === 0) ? <CheckCircle2 size={16} /> : <XCircle size={16} />}
+                    {executionResult.status === 'Accepted' || ((executionResult.test_results?.length ?? 0) > 0 && executionResult.failed_count === 0) ? 'Accepted' : executionResult.status}
+                    {(executionResult.test_results?.length ?? 0) > 0 && (
                         <span className="text-slate-400 font-normal ml-2 text-xs">
                           ({executionResult.passed_count}/{executionResult.test_results.length} cases passed)
                         </span>

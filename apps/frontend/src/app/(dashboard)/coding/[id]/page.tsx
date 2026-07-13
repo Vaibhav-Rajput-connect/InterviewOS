@@ -1,5 +1,6 @@
 "use client";
 
+// @ts-ignore
 import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
 import { ProblemPanel } from "@/components/coding/problem-panel";
 import { AIPanel } from "@/components/coding/ai-panel";

@@ -13,6 +13,8 @@ from app.api import deps
 from app.models import User
 from app.models.coding import CodingProblem, UserProblemStatus
 from app.services.coding.runner import CodeRunner
+from starlette.requests import Request
+from app.core.rate_limit import limiter
 
 class ExecutionRequest(BaseModel):
     language: str
@@ -171,8 +173,10 @@ async def toggle_bookmark(
     return {"bookmarked": status.bookmarked}
 
 @router.post("/run", response_model=ExecutionResult)
+@limiter.limit("15/minute")
 async def execute_code(
     request: ExecutionRequest,
+    req: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
@@ -198,8 +202,10 @@ async def execute_code(
 
 
 @router.post("/submit")
+@limiter.limit("15/minute")
 async def submit_code(
     request: ExecutionRequest,
+    req: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
@@ -333,8 +339,10 @@ class ChatRequest(AssistantRequest):
     chat_history: str = ""
 
 @router.post("/hint")
+@limiter.limit("5/minute")
 async def get_coding_hints(
     request: AssistantRequest,
+    req: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
@@ -363,8 +371,10 @@ async def get_coding_hints(
     return result
 
 @router.post("/review")
+@limiter.limit("5/minute")
 async def analyze_complexity(
     request: AssistantRequest,
+    req: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
@@ -381,8 +391,10 @@ async def analyze_complexity(
     return result
 
 @router.post("/assistant/chat")
+@limiter.limit("5/minute")
 async def copilot_chat(
     request: ChatRequest,
+    req: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:

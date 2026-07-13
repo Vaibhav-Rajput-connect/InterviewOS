@@ -1,7 +1,8 @@
 import os
 import uuid
 from typing import Dict, Any
-from app.services.coding.sandbox import LocalSandbox, create_workspace, cleanup_workspace
+from app.services.coding.sandbox import LocalSandbox, DockerSandbox, create_workspace, cleanup_workspace
+from app.services.coding.security import SecurityValidator
 
 # Map language to file extension and execution command
 LANGUAGE_CONFIG = {
@@ -45,28 +46,13 @@ LANGUAGE_CONFIG = {
 
 class CodeRunner:
     def __init__(self):
-        # We inject the LocalSandbox for now.
-        # Future: Read from settings to decide between LocalSandbox and DockerSandbox
-        self.sandbox = LocalSandbox()
-
-    def execute(self, language: str, code: str, problem_id: str = None, test_cases: list = None) -> Dict[str, Any]:
-        """
-        Orchestrates code execution by setting up the workspace, writing code, 
-        and invoking the sandbox.
-        """
-        if language not in LANGUAGE_CONFIG:
-            return {
-                "stdout": "",
-                "stderr": f"Unsupported language: {language}",
-                "exit_code": 1,
-                "time_ms": 0,
-                "status": "Internal Error",
-                "test_results": []
-            }
+        # Default to DockerSandbox for production security
+        # Fall back to LocalSandbox only if configured (e.g. for simple local testing)
+        if os.environ.get("USE_LOCAL_SANDBOX") == "true":
+            self.sandbox = LocalSandbox()
+        else:
+            self.sandbox = DockerSandbox()
             
-        config = LANGUAGE_CONFIG[language]
-        workspace = create_workspace()
-        
     def _inject_test_runner(self, code: str, language: str, test_cases: list) -> str:
         import json
         import re
@@ -192,6 +178,20 @@ console.log("---TEST_RESULTS_END---");
         Orchestrates code execution by setting up the workspace, writing code, 
         and invoking the sandbox.
         """
+        # 1. Security Validation
+        is_valid, error_msg = SecurityValidator.validate(code, language)
+        if not is_valid:
+            return {
+                "stdout": "",
+                "stderr": error_msg,
+                "exit_code": 1,
+                "time_ms": 0,
+                "status": "Security Violation",
+                "test_results": [],
+                "passed_count": 0,
+                "failed_count": 0
+            }
+
         if language not in LANGUAGE_CONFIG:
             return {
                 "stdout": "",

@@ -186,7 +186,7 @@ export default function ResumeDashboardPage() {
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-white mb-6">Experience</h2>
         <div className="flex flex-col gap-4">
-          {experience.map((exp: any) => (
+          {experience.map((exp: Record<string, unknown>) => (
             <GlassCard key={exp.id} className="p-6 border-white/10 bg-white/[0.02]">
               <div className="flex justify-between items-start mb-2">
                 <div>

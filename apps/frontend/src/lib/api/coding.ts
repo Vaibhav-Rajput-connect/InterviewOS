@@ -1,4 +1,5 @@
-import api from "./index";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import api from "@/lib/api-client";
 
 export interface CodingProblem {
   id: string;
@@ -29,6 +30,9 @@ export interface ExecutionResult {
   time_ms: number;
   memory_kb?: number;
   status: string;
+  test_results?: any[];
+  passed_count?: number;
+  failed_count?: number;
 }
 
 export const codingApi = {
