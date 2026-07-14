@@ -207,10 +207,11 @@ async def execute_code(
 
 
 @router.post("/submit")
-@limiter.limit("15/minute")
+@limiter.limit("10/minute")
 async def submit_code(
     request: ExecutionRequest,
     req: Request,
+    background_tasks: BackgroundTasks,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
@@ -326,6 +327,22 @@ async def submit_code(
             user_status.solved_at = datetime.now(timezone.utc)  # type: ignore
             
     await db.commit()
+    
+    # 6. Ingest into AI Memory
+    try:
+        from app.services.ai.memory_service import AIMemoryService
+        memory_service = AIMemoryService()
+        await memory_service.ingest_coding_session(
+            db=db,
+            user_id=current_user.id,
+            problem_title=str(problem.title),  # type: ignore
+            is_success=is_success,
+            time_complexity=eval_dict.get("time_complexity", "") if eval_dict else "",
+            space_complexity=eval_dict.get("space_complexity", "") if eval_dict else ""
+        )
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to ingest coding memory: {e}")
     
     return {
         "submission_id": str(submission.id),

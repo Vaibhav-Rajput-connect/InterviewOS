@@ -321,6 +321,19 @@ async def end_interview(
     await db.commit()
     await db.refresh(summary)
     
+    # Ingest into AI Memory
+    try:
+        from app.services.ai.memory_service import AIMemoryService
+        memory_service = AIMemoryService()
+        await memory_service.ingest_interview_session(
+            db=db,
+            user_id=current_user.id,
+            session_summary=summary_result.next_learning_plan,
+            weak_points=summary_result.weaknesses
+        )
+    except Exception as e:
+        logger.error(f"Failed to ingest interview memory: {e}")
+    
     return {
         "status": "completed",
         "summary_id": str(summary.id)

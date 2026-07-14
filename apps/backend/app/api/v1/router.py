@@ -13,6 +13,7 @@ from app.api.v1.endpoints.interview import router as interview_router
 from app.api.v1.endpoints.coding import router as coding_router
 from app.api.v1.endpoints.coding_admin import router as coding_admin_router
 from app.api.v1.endpoints.coding_collab import router as coding_collab_router
+from app.api.v1.endpoints.analytics import router as analytics_router
 
 api_v1_router = APIRouter()
 
@@ -21,6 +22,7 @@ api_v1_router.include_router(auth_router, prefix="/auth", tags=["Auth"])
 api_v1_router.include_router(dashboard_router, prefix="/dashboard", tags=["Dashboard"])
 api_v1_router.include_router(resume_router, prefix="/resume", tags=["Resume"])
 api_v1_router.include_router(coach_router, prefix="/coach", tags=["Coach"])
+api_v1_router.include_router(analytics_router, prefix="/analytics", tags=["Analytics"])
 api_v1_router.include_router(interview_router, prefix="/interview", tags=["Interview"])
 api_v1_router.include_router(coding_router, prefix="/coding", tags=["Coding"])
 api_v1_router.include_router(coding_admin_router, prefix="/coding/admin", tags=["Coding Admin"])

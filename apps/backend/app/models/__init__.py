@@ -4,6 +4,7 @@ Models package — import all models to register them with SQLAlchemy.
 
 from .user import User
 from .profile import Profile
+from .ai_memory import AIMemory
 from .resume import (
     Resume,
     ResumeAnalysis,
@@ -40,6 +41,7 @@ from .gamification import Achievement, DailyGoal, UserStats
 __all__ = [
     "User",
     "Profile",
+    "AIMemory",
     "Resume",
     "InterviewSession",
     "InterviewQuestion",
