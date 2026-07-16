@@ -5,6 +5,7 @@ Models package — import all models to register them with SQLAlchemy.
 from .user import User
 from .profile import Profile
 from .ai_memory import AIMemory
+from .organization import Organization, OrganizationMember, OrganizationInvite
 from .resume import (
     Resume,
     ResumeAnalysis,
@@ -42,6 +43,9 @@ __all__ = [
     "User",
     "Profile",
     "AIMemory",
+    "Organization",
+    "OrganizationMember",
+    "OrganizationInvite",
     "Resume",
     "InterviewSession",
     "InterviewQuestion",
@@ -73,3 +77,4 @@ __all__ = [
     "ExecutionLog",
     "CodingHint",
 ]
+

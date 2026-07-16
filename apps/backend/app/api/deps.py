@@ -59,3 +59,44 @@ async def get_current_user(db: DbSession, token: TokenDep) -> User:
 
 
 CurrentUser: TypeAlias = Annotated[User, Depends(get_current_user)]
+
+
+async def get_current_recruiter(current_user: CurrentUser) -> User:
+    """Assert that the current user has a recruiter-level role."""
+    if current_user.role not in ("recruiter", "org_admin"):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Recruiter access required",
+        )
+    return current_user
+
+
+CurrentRecruiter: TypeAlias = Annotated[User, Depends(get_current_recruiter)]
+
+
+async def get_org_membership(
+    current_user: CurrentRecruiter,
+    db: DbSession,
+):
+    """Load the recruiter's organization membership. Returns (member, organization)."""
+    from app.models.organization import OrganizationMember, Organization
+
+    stmt = (
+        select(OrganizationMember, Organization)
+        .join(Organization, OrganizationMember.organization_id == Organization.id)
+        .where(OrganizationMember.user_id == current_user.id)
+    )
+    result = await db.execute(stmt)
+    row = result.first()
+
+    if not row:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not a member of any organization",
+        )
+    
+    return row
+
+
+OrgMembership: TypeAlias = Annotated[tuple, Depends(get_org_membership)]
+

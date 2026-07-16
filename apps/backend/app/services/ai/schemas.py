@@ -98,3 +98,19 @@ class SubmissionEvaluationResult(BaseModel):
     best_practices_feedback: str = Field(description="Feedback on whether language-specific best practices were used.")
     edge_case_feedback: str = Field(description="Analysis of what edge cases this code handles well or misses.")
     optimization_suggestions: str = Field(description="Constructive suggestions for optimizing time, space, or elegance.")
+
+# ==========================================
+# Recruiter AI Evaluation Schemas
+# ==========================================
+
+class CandidateEvaluationResult(BaseModel):
+    candidate_score: int = Field(description="Holistic Candidate Score out of 100.")
+    technical_score: int = Field(description="Technical Score out of 100.")
+    communication_score: int = Field(description="Communication Score out of 100.")
+    behavioral_score: int = Field(description="Behavioral Score out of 100.")
+    system_design_score: int = Field(description="System Design Score out of 100.")
+    coding_score: int = Field(description="Coding Score out of 100.")
+    culture_fit_estimate: int = Field(description="Culture Fit Estimate out of 100.")
+    hiring_recommendation: str = Field(description="Definitive Hiring Recommendation (e.g., 'Strong Hire', 'No Hire').")
+    risk_analysis: str = Field(description="2-3 sentences on potential risks or red flags.")
+    improvement_areas: List[str] = Field(description="List of 3 actionable areas for improvement.")

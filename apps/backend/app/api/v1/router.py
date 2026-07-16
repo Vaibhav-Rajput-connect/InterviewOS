@@ -14,6 +14,9 @@ from app.api.v1.endpoints.coding import router as coding_router
 from app.api.v1.endpoints.coding_admin import router as coding_admin_router
 from app.api.v1.endpoints.coding_collab import router as coding_collab_router
 from app.api.v1.endpoints.analytics import router as analytics_router
+from app.api.v1.endpoints.recruiter_auth import router as recruiter_auth_router
+from app.api.v1.endpoints.recruiter_org import router as recruiter_org_router
+from app.api.v1.endpoints.recruiter_eval import router as recruiter_eval_router
 
 api_v1_router = APIRouter()
 
@@ -27,3 +30,7 @@ api_v1_router.include_router(interview_router, prefix="/interview", tags=["Inter
 api_v1_router.include_router(coding_router, prefix="/coding", tags=["Coding"])
 api_v1_router.include_router(coding_admin_router, prefix="/coding/admin", tags=["Coding Admin"])
 api_v1_router.include_router(coding_collab_router, prefix="/coding/collab", tags=["Coding Collab"])
+api_v1_router.include_router(recruiter_auth_router, prefix="/recruiter", tags=["Recruiter Auth"])
+api_v1_router.include_router(recruiter_org_router, prefix="/recruiter/org", tags=["Recruiter Org"])
+api_v1_router.include_router(recruiter_eval_router, prefix="/recruiter/eval", tags=["Recruiter Eval"])
+

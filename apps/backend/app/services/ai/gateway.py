@@ -243,3 +243,24 @@ class AIGateway:
             SubmissionEvaluationResult,
             system_prompt
         )
+
+    # ==============================================================
+    # Recruiter & Hiring Platform
+    # ==============================================================
+
+    async def evaluate_candidate(
+        self,
+        candidate_data: str
+    ) -> "CandidateEvaluationResult":
+        from app.services.ai.schemas import CandidateEvaluationResult
+        from app.services.ai.prompts.candidate import get_candidate_evaluation_prompt
+        
+        prompt = get_candidate_evaluation_prompt(candidate_data)
+        system_prompt = "You are a Principal Technical Recruiter and Staff Engineer."
+        
+        return await asyncio.to_thread(
+            self.generate_structured_output,
+            prompt,
+            CandidateEvaluationResult,
+            system_prompt
+        )
