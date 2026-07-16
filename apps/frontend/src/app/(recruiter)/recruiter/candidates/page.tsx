@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect as import_react_useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Filter,
-  MoreVertical,
   CheckCircle2,
   XCircle,
   CalendarClock,
@@ -14,7 +13,6 @@ import {
   MessageSquare,
   ChevronDown,
   Download,
-  Trash2,
   Tag,
   LucideIcon,
 } from "lucide-react";
@@ -64,15 +62,31 @@ export default function CandidatesPage() {
   const [statusFilter, setStatusFilter] = useState<CandidateStatus | "All">("All");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [candidates, setCandidates] = useState<Candidate[]>(MOCK_CANDIDATES);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(5);
 
   // Filtered Data
   const filteredCandidates = useMemo(() => {
     return candidates.filter((c) => {
       const matchesSearch = c.name.toLowerCase().includes(search.toLowerCase()) || c.role.toLowerCase().includes(search.toLowerCase()) || c.tags.some(t => t.toLowerCase().includes(search.toLowerCase()));
-      const matchesStatus = statusFilter === "All" || c.status === statusFilter;
+      // If "All" is selected, hide Archived candidates. Otherwise, show whatever status is selected (including Archived if they click that tab)
+      const matchesStatus = statusFilter === "All" ? c.status !== "Archived" : c.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
   }, [search, statusFilter, candidates]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCandidates.length / pageSize));
+  
+  const paginatedCandidates = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredCandidates.slice(startIndex, startIndex + pageSize);
+  }, [filteredCandidates, currentPage, pageSize]);
+
+  // Reset to page 1 when filters change
+  import_react_useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCurrentPage(1);
+  }, [search, statusFilter, pageSize]);
 
   // Bulk Actions
   const handleSelectAll = () => {
@@ -95,6 +109,10 @@ export default function CandidatesPage() {
       prev.map((c) => (selectedIds.has(c.id) ? { ...c, status: newStatus } : c))
     );
     setSelectedIds(new Set());
+  };
+
+  const handleArchive = (id: string) => {
+    setCandidates((prev) => prev.map((c) => (c.id === id ? { ...c, status: "Archived" } : c)));
   };
 
   return (
@@ -180,8 +198,13 @@ export default function CandidatesPage() {
               <Button variant="outline" size="sm" className="border-white/10 text-slate-300 bg-white/[0.02]">
                 <Tag size={14} className="mr-2" /> Tag
               </Button>
-              <Button variant="outline" size="sm" className="border-rose-500/30 text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 hover:text-rose-300">
-                <Trash2 size={14} className="mr-2" /> Delete
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="border-amber-500/30 text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 hover:text-amber-300"
+                onClick={() => handleBulkStatusChange("Archived")}
+              >
+                <Archive size={14} className="mr-2" /> Archive
               </Button>
             </div>
           </motion.div>
@@ -221,7 +244,7 @@ export default function CandidatesPage() {
                   </td>
                 </tr>
               ) : (
-                filteredCandidates.map((candidate) => {
+                paginatedCandidates.map((candidate) => {
                   const StatusIcon = STATUS_CONFIG[candidate.status].icon;
                   const isSelected = selectedIds.has(candidate.id);
                   
@@ -290,8 +313,12 @@ export default function CandidatesPage() {
                               </span>
                             )}
                           </button>
-                          <button className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors">
-                            <MoreVertical size={16} />
+                          <button 
+                            onClick={() => handleArchive(candidate.id)}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+                            title="Archive Candidate"
+                          >
+                            <Archive size={16} />
                           </button>
                         </div>
                       </td>
@@ -301,6 +328,49 @@ export default function CandidatesPage() {
               )}
             </tbody>
           </table>
+        </div>
+        
+        {/* ════════════════════════ PAGINATION ══════════════════════════ */}
+        <div className="flex items-center justify-between p-4 border-t border-white/5 bg-white/[0.01]">
+          <div className="flex items-center gap-2 text-sm text-slate-400">
+            <span>Show</span>
+            <select
+              value={pageSize}
+              onChange={(e) => setPageSize(Number(e.target.value))}
+              className="bg-white/5 border border-white/10 rounded px-2 py-1 text-white focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            >
+              <option value={5}>5</option>
+              <option value={10}>10</option>
+              <option value={20}>20</option>
+              <option value={50}>50</option>
+            </select>
+            <span>rows per page</span>
+          </div>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-slate-400">
+              Page {currentPage} of {totalPages}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white/10 text-slate-300 bg-white/[0.02]"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="border-white/10 text-slate-300 bg-white/[0.02]"
+                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
     </div>

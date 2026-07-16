@@ -18,6 +18,7 @@ import {
 import { useAuthStore } from "@/stores/auth-store";
 import { useRecruiterStore } from "@/stores/recruiter-store";
 import { DigitalTunnelTransition } from "@/components/transitions/digital-tunnel";
+import { NotificationBell } from "@/components/recruiter/notification-bell";
 
 const navItems = [
   { label: "Dashboard", href: "/recruiter/dashboard", icon: LayoutDashboard },
@@ -165,7 +166,10 @@ export default function RecruiterLayout({ children }: { children: ReactNode }) {
         >
           <div className="flex-1 rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl shadow-2xl overflow-hidden relative">
             <div className="absolute inset-0 bg-gradient-to-br from-white/[0.02] to-transparent pointer-events-none" />
-            <div className="relative h-full overflow-y-auto p-8 custom-scrollbar">
+            <div className="absolute top-6 right-8 z-50">
+              <NotificationBell />
+            </div>
+            <div className="relative h-full overflow-y-auto p-8 pt-20 custom-scrollbar">
               {children}
             </div>
           </div>

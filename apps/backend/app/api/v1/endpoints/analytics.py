@@ -3,11 +3,55 @@ from typing import Any
 import random
 from datetime import datetime, timedelta
 
-from app.api.deps import CurrentUser, DbSession
+from app.api.deps import CurrentUser, DbSession, OrgMembership
 from app.core.cache import async_ttl_cache
 from app.core.rate_limit import limiter
 
 router = APIRouter()
+
+@router.get("/recruiter")
+@limiter.limit("30/minute")
+@async_ttl_cache(ttl=300)
+async def get_recruiter_analytics(
+    request: Request,
+    org_membership: OrgMembership,
+) -> Any:
+    """Returns analytics data for the Recruiter Command Center, scoped by organization."""
+    member, org = org_membership
+    # In a real implementation: filter metrics by org.id
+    return {
+        "trends": [
+            {"month": "Jan", "applications": 400, "offers": 24, "hires": 18},
+            {"month": "Feb", "applications": 300, "offers": 18, "hires": 12},
+            {"month": "Mar", "applications": 550, "offers": 35, "hires": 25},
+            {"month": "Apr", "applications": 480, "offers": 28, "hires": 20},
+            {"month": "May", "applications": 600, "offers": 42, "hires": 30},
+            {"month": "Jun", "applications": 750, "offers": 55, "hires": 42},
+        ],
+        "funnel": [
+            {"stage": "Sourced", "count": 1000},
+            {"stage": "Applied", "count": 750},
+            {"stage": "Screened", "count": 400},
+            {"stage": "Interviewed", "count": 150},
+            {"stage": "Offered", "count": 45},
+            {"stage": "Hired", "count": 32},
+        ],
+        "skills": [
+            {"subject": "React/Next.js", "score": 85},
+            {"subject": "System Design", "score": 65},
+            {"subject": "Algorithms", "score": 70},
+            {"subject": "Communication", "score": 90},
+            {"subject": "Cloud/DevOps", "score": 55},
+            {"subject": "Databases", "score": 75},
+        ],
+        "departments": [
+            {"name": "Engineering", "active": 45, "hired": 120},
+            {"name": "Product", "active": 15, "hired": 45},
+            {"name": "Design", "active": 8, "hired": 30},
+            {"name": "Marketing", "active": 12, "hired": 40},
+            {"name": "Sales", "active": 25, "hired": 85},
+        ]
+    }
 
 @router.get("")
 @limiter.limit("30/minute")

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, memo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, MoreHorizontal, MessageSquare, Clock } from "lucide-react";
 
@@ -62,6 +62,60 @@ const STAGE_COLORS: Record<PipelineStage, string> = {
   "Rejected": "border-rose-500/30 text-rose-400 bg-rose-500/10",
 };
 
+// ─── Memoized Candidate Card ─────────────────────────────────────────
+
+const MemoizedCandidateCard = memo(({ 
+  candidate, 
+  isDragged, 
+  onDragStart 
+}: { 
+  candidate: CandidateCard; 
+  isDragged: boolean; 
+  onDragStart: (e: React.DragEvent, id: string) => void;
+}) => {
+  return (
+    <div
+      draggable
+      onDragStart={(e) => onDragStart(e, candidate.id)}
+      className={`p-4 rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-md shadow-lg cursor-grab active:cursor-grabbing hover:border-cyan-500/30 hover:bg-white/[0.06] transition-colors ${isDragged ? "opacity-50 border-cyan-500/50" : ""}`}
+    >
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 flex items-center justify-center text-xs font-bold text-cyan-400 shrink-0">
+            {candidate.avatar}
+          </div>
+          <div>
+            <h4 className="text-sm font-semibold text-white leading-tight">{candidate.name}</h4>
+            <p className="text-[10px] text-slate-400 mt-0.5">{candidate.role}</p>
+          </div>
+        </div>
+        <button className="text-slate-500 hover:text-white transition-colors">
+          <MoreHorizontal size={14} />
+        </button>
+      </div>
+
+      {/* AI Score & Tags */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-medium text-slate-300">
+          <span className="text-emerald-400 font-bold">{candidate.aiScore}</span> AI Score
+        </div>
+        
+        <div className="flex items-center gap-2 text-slate-500">
+          {candidate.notes > 0 && (
+            <div className="flex items-center gap-1 text-[10px]">
+              <MessageSquare size={10} /> {candidate.notes}
+            </div>
+          )}
+          <div className="flex items-center gap-1 text-[10px]">
+            <Clock size={10} /> {candidate.timeInStage}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+MemoizedCandidateCard.displayName = "MemoizedCandidateCard";
+
 // ─── Component ───────────────────────────────────────────────────────
 
 export default function PipelinePage() {
@@ -69,11 +123,11 @@ export default function PipelinePage() {
   const [search, setSearch] = useState("");
   const [draggedItemId, setDraggedItemId] = useState<string | null>(null);
 
-  const handleDragStart = (e: React.DragEvent, id: string) => {
+  const handleDragStart = useCallback((e: React.DragEvent, id: string) => {
     setDraggedItemId(id);
     e.dataTransfer.setData("text/plain", id);
     e.dataTransfer.effectAllowed = "move";
-  };
+  }, []);
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault(); // Necessary to allow dropping
@@ -156,44 +210,11 @@ export default function PipelinePage() {
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
                         key={candidate.id}
                       >
-                        <div
-                          draggable
-                          onDragStart={(e) => handleDragStart(e, candidate.id)}
-                          className={`p-4 rounded-xl border border-white/10 bg-white/[0.04] backdrop-blur-md shadow-lg cursor-grab active:cursor-grabbing hover:border-cyan-500/30 hover:bg-white/[0.06] transition-colors ${draggedItemId === candidate.id ? "opacity-50 border-cyan-500/50" : ""}`}
-                        >
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/20 flex items-center justify-center text-xs font-bold text-cyan-400 shrink-0">
-                                {candidate.avatar}
-                              </div>
-                              <div>
-                                <h4 className="text-sm font-semibold text-white leading-tight">{candidate.name}</h4>
-                                <p className="text-[10px] text-slate-400 mt-0.5">{candidate.role}</p>
-                              </div>
-                            </div>
-                            <button className="text-slate-500 hover:text-white transition-colors">
-                              <MoreHorizontal size={14} />
-                            </button>
-                          </div>
-
-                          {/* AI Score & Tags */}
-                          <div className="flex items-center justify-between mt-4">
-                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-white/5 border border-white/5 text-[10px] font-medium text-slate-300">
-                              <span className="text-emerald-400 font-bold">{candidate.aiScore}</span> AI Score
-                            </div>
-                            
-                            <div className="flex items-center gap-2 text-slate-500">
-                              {candidate.notes > 0 && (
-                                <div className="flex items-center gap-1 text-[10px]">
-                                  <MessageSquare size={10} /> {candidate.notes}
-                                </div>
-                              )}
-                              <div className="flex items-center gap-1 text-[10px]">
-                                <Clock size={10} /> {candidate.timeInStage}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                        <MemoizedCandidateCard 
+                          candidate={candidate} 
+                          isDragged={draggedItemId === candidate.id} 
+                          onDragStart={handleDragStart} 
+                        />
                       </motion.div>
                     ))}
                   </AnimatePresence>

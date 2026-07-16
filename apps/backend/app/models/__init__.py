@@ -6,6 +6,8 @@ from .user import User
 from .profile import Profile
 from .ai_memory import AIMemory
 from .organization import Organization, OrganizationMember, OrganizationInvite
+from .recruiting import Team, Pipeline, HiringStage, Candidate, CandidateNote, InterviewReport, Evaluation
+from .audit import AuditLog
 from .resume import (
     Resume,
     ResumeAnalysis,
@@ -46,6 +48,14 @@ __all__ = [
     "Organization",
     "OrganizationMember",
     "OrganizationInvite",
+    "Team",
+    "Pipeline",
+    "HiringStage",
+    "Candidate",
+    "CandidateNote",
+    "InterviewReport",
+    "Evaluation",
+    "AuditLog",
     "Resume",
     "InterviewSession",
     "InterviewQuestion",
