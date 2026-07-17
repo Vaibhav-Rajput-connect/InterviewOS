@@ -295,6 +295,9 @@ async def google_login(request: Request):
 @router.get("/google/callback")
 async def google_callback(request: Request, response: Response, db: DbSession):
     """Handle Google OAuth callback."""
+    if "onrender.com" in str(request.url) or getattr(settings, "ENVIRONMENT", "development") != "development":
+        request.scope["scheme"] = "https"
+
     try:
         token = await oauth.google.authorize_access_token(request)
     except Exception as e:
