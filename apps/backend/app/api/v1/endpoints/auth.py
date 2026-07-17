@@ -284,8 +284,12 @@ async def google_login(request: Request):
     if not settings.GOOGLE_CLIENT_ID:
         raise HTTPException(status_code=501, detail="Google OAuth not configured")
         
-    redirect_uri = request.url_for('google_callback')
-    return await oauth.google.authorize_redirect(request, str(redirect_uri))
+    redirect_uri = str(request.url_for('google_callback'))
+    # Ensure HTTPS in production behind proxies
+    if "onrender.com" in redirect_uri or getattr(settings, "ENVIRONMENT", "development") != "development":
+        redirect_uri = redirect_uri.replace("http://", "https://")
+        
+    return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
 @router.get("/google/callback")
