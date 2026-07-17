@@ -23,7 +23,7 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
   const currentCodeRef = useRef("");
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionResult, setSubmissionResult] = useState<any>(null);
+  const [submissionResult, setSubmissionResult] = useState<unknown>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const [customInput, setCustomInput] = useState<string>("");

@@ -47,9 +47,7 @@ export function CodeEditor({
   onSubmitComplete,
   isExecuting, 
   isSubmitting,
-  onCodeChange,
-  customTestcases,
-  sessionId
+  onCodeChange
 }: CodeEditorProps) {
   const [language, setLanguage] = useState("typescript");
   const [theme, setTheme] = useState("vs-dark");

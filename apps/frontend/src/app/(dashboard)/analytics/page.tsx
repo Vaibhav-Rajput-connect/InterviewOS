@@ -27,10 +27,10 @@ interface DashboardMetrics {
   interview_readiness: number;
   consistency_streak: number;
   total_problems: number;
-  resume_trend: any[];
-  coding_accuracy: any[];
-  skill_distribution: any[];
-  activity_heatmap: any[];
+  resume_trend: Record<string, unknown>[];
+  coding_accuracy: Record<string, unknown>[];
+  skill_distribution: Record<string, unknown>[];
+  activity_heatmap: Record<string, unknown>[];
 }
 
 export default function AnalyticsPage() {
