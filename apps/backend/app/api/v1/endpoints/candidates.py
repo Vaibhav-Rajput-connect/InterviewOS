@@ -3,7 +3,7 @@ Candidate Management Endpoints for Recruiters.
 """
 
 from typing import Any
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Query, Request
 from pydantic import BaseModel, Field
 
 from app.api.deps import DbSession, OrgMembership
@@ -22,6 +22,7 @@ class NoteUpdate(BaseModel):
 @router.get("")
 @limiter.limit("30/minute")
 async def list_candidates(
+    request: Request,
     org_membership: OrgMembership,
     db: DbSession,
     skip: int = Query(0, ge=0),
@@ -48,6 +49,7 @@ async def list_candidates(
 @router.get("/{id}")
 @limiter.limit("30/minute")
 async def get_candidate(
+    request: Request,
     id: str,
     org_membership: OrgMembership,
     db: DbSession,
@@ -68,6 +70,7 @@ async def get_candidate(
 @router.post("/status")
 @limiter.limit("20/minute")
 async def update_candidate_status(
+    request: Request,
     data: StatusUpdate,
     org_membership: OrgMembership,
     db: DbSession,
@@ -80,6 +83,7 @@ async def update_candidate_status(
 @router.post("/note")
 @limiter.limit("20/minute")
 async def add_candidate_note(
+    request: Request,
     data: NoteUpdate,
     org_membership: OrgMembership,
     db: DbSession,
@@ -92,6 +96,7 @@ async def add_candidate_note(
 @router.post("/{id}/archive")
 @limiter.limit("20/minute")
 async def archive_candidate(
+    request: Request,
     id: str,
     org_membership: OrgMembership,
     db: DbSession,

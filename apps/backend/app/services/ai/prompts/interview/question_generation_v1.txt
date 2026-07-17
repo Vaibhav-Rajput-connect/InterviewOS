@@ -13,6 +13,9 @@ Projects: {resume_projects}
 Difficulty: {difficulty}
 Interview Type: {interview_type}
 
+# Candidate Comprehensive Context (Strengths, Weaknesses, Goals)
+{comprehensive_context}
+
 # Previous Interview History
 {previous_history}
 

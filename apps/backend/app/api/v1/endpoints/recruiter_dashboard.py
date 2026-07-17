@@ -3,7 +3,7 @@ Recruiter Dashboard Endpoints.
 """
 
 from typing import Any
-from fastapi import APIRouter
+from fastapi import APIRouter, Request
 
 from app.api.deps import DbSession, OrgMembership
 from app.core.rate_limit import limiter
@@ -14,6 +14,7 @@ router = APIRouter()
 @router.get("")
 @limiter.limit("30/minute")
 async def get_dashboard(
+    request: Request,
     org_membership: OrgMembership,
     db: DbSession,
 ) -> Any:

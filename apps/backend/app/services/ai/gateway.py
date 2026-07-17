@@ -49,6 +49,7 @@ class AIGateway:
         target_company: str,
         difficulty: str,
         interview_type: str,
+        comprehensive_context: str,
         previous_history: str
     ) -> GeneratedQuestion:
         """
@@ -67,6 +68,7 @@ class AIGateway:
             target_company=target_company,
             difficulty=difficulty,
             interview_type=interview_type,
+            comprehensive_context=comprehensive_context,
             previous_history=previous_history
         )
         

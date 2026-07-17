@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    - name: Install dependencies
+      working-directory: apps/backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+    - name: Run tests
+      working-directory: apps/backend
+      run: |
+        pytest
+    - name: Run Ruff Linting
+      working-directory: apps/backend
+      run: |
+        ruff check .
+
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    - name: Install dependencies
+      working-directory: apps/frontend
+      run: npm ci
+    - name: Run tests
+      working-directory: apps/frontend
+      run: npm run test
+    - name: Run ESLint
+      working-directory: apps/frontend
+      run: npm run lint

@@ -112,6 +112,11 @@ async def generate_next_question(
             
     previous_history = "\n".join(history_lines) if history_lines else "This is the very first question of the interview. Start strong!"
     
+    # Get Comprehensive Context
+    from app.services.ai.memory_service import AIMemoryService
+    memory_service = AIMemoryService()
+    comprehensive_context = await memory_service.retrieve_comprehensive_context(db, current_user.id)
+    
     # Generate via AI Gateway
     try:
         generated = await ai_gateway.generate_interview_question(
@@ -123,6 +128,7 @@ async def generate_next_question(
             target_company=session.target_company or "Tech Company",
             difficulty=session.difficulty,
             interview_type="Mixed", # You might want to store interview_type in session model
+            comprehensive_context=comprehensive_context,
             previous_history=previous_history
         )
     except Exception as e:

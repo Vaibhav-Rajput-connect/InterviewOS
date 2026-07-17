@@ -46,12 +46,19 @@ class AICoachService:
             content=f"User asked AI Coach: {user_message}"
         )
 
-        # 2. Retrieve relevant context
-        context = await self.get_relevant_user_context(db, user_id, user_message)
-        system_prompt = get_coach_chat_prompt(context)
+        # 2. Retrieve relevant context (RAG)
+        relevant_context = await self.get_relevant_user_context(db, user_id, user_message)
+        
+        # 3. Retrieve comprehensive baseline context
+        comprehensive_context = await self.memory_service.retrieve_comprehensive_context(db, user_id)
+        
+        # Combine contexts
+        full_context = f"--- COMPREHENSIVE BASELINE CONTEXT ---\n{comprehensive_context}\n\n--- RELEVANT RECENT CONTEXT ---\n{relevant_context}"
+        
+        system_prompt = get_coach_chat_prompt(full_context)
 
         try:
-            # 3. Generate response
+            # 4. Generate response
             parsed_data = self.ai_gateway.generate_structured_output(
                 prompt=user_message,
                 schema=CoachResponse,

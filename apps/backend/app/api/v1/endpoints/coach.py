@@ -4,6 +4,7 @@ from typing import Any
 
 from app.api.deps import CurrentUser, DbSession
 from app.core.rate_limit import limiter
+from app.core.cache import async_ttl_cache
 from app.services.ai_coach import AICoachService
 from app.models.resume import Resume
 
@@ -224,7 +225,6 @@ async def submit_feedback(
     return {"success": True}
 
 @router.get("/insights")
-from app.core.cache import async_ttl_cache
 @limiter.limit("15/minute")
 @async_ttl_cache(ttl=300)
 async def get_insights(

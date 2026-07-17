@@ -40,6 +40,7 @@ from .coding import (
 from .auth import Session, VerificationToken
 from .activity import ActivityLog, Notification
 from .gamification import Achievement, DailyGoal, UserStats
+from .full_evaluation import FullEvaluation
 
 __all__ = [
     "User",
@@ -86,5 +87,5 @@ __all__ = [
     "SubmissionResult",
     "ExecutionLog",
     "CodingHint",
+    "FullEvaluation",
 ]
-

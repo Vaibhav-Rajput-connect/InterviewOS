@@ -36,27 +36,9 @@ class LearningEngineService:
     async def get_full_user_context(self, db: AsyncSession, user_id: uuid.UUID) -> str:
         """
         Retrieves a comprehensive snapshot of the user's weaknesses and recent history.
+        Now uses the enhanced RAG method from AIMemoryService.
         """
-        # We query the most recent weak topics, coding struggles, and interview feedback
-        stmt = (
-            select(AIMemory)
-            .where(AIMemory.user_id == user_id)
-            .where(AIMemory.memory_type.in_(["weak_topic", "interview", "coding", "resume"]))
-            .order_by(AIMemory.created_at.desc())
-            .limit(20)
-        )
-        
-        result = await db.execute(stmt)
-        memories = result.scalars().all()
-        
-        if not memories:
-            return "No comprehensive context available yet. The user might be new."
-            
-        context_chunks = []
-        for mem in memories:
-            context_chunks.append(f"- [{mem.memory_type.upper()}] {mem.content}")
-            
-        return "\n".join(context_chunks)
+        return await self.memory_service.retrieve_comprehensive_context(db, user_id)
 
     async def generate_learning_plan(self, db: AsyncSession, user_id: uuid.UUID, target_role: str = "Software Engineer", target_company: str = "Top Tech Companies") -> LearningPlanSchema:
         """

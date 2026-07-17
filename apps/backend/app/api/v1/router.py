@@ -20,7 +20,7 @@ from app.api.v1.endpoints.recruiter_eval import router as recruiter_eval_router
 from app.api.v1.endpoints.recruiter_dashboard import router as recruiter_dashboard_router
 from app.api.v1.endpoints.candidates import router as candidates_router
 from app.api.v1.endpoints.reports import router as reports_router
-
+from app.api.v1.endpoints.evaluation import router as evaluation_router
 api_v1_router = APIRouter()
 
 api_v1_router.include_router(health_router, tags=["Health"])
@@ -40,3 +40,4 @@ api_v1_router.include_router(recruiter_dashboard_router, prefix="/recruiter/dash
 api_v1_router.include_router(candidates_router, prefix="/candidates", tags=["Candidates"])
 api_v1_router.include_router(candidates_router, prefix="/candidate", tags=["Candidate"])
 api_v1_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
+api_v1_router.include_router(evaluation_router, prefix="/evaluation", tags=["Evaluation"])

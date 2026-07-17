@@ -114,3 +114,54 @@ class CandidateEvaluationResult(BaseModel):
     hiring_recommendation: str = Field(description="Definitive Hiring Recommendation (e.g., 'Strong Hire', 'No Hire').")
     risk_analysis: str = Field(description="2-3 sentences on potential risks or red flags.")
     improvement_areas: List[str] = Field(description="List of 3 actionable areas for improvement.")
+
+# ==========================================
+# Full Evaluation Engine Schemas
+# ==========================================
+
+class FullEvaluationResult(BaseModel):
+    """Comprehensive evaluation of an entire interview session across all dimensions."""
+    overall_score: int = Field(description="Aggregate score out of 100 across all dimensions.")
+    technical_score: int = Field(description="Technical knowledge and accuracy score out of 100.")
+    coding_score: int = Field(description="Coding ability and problem-solving score out of 100.")
+    communication_score: int = Field(description="Clarity, structure, and articulation score out of 100.")
+    confidence_score: int = Field(description="Perceived confidence and composure score out of 100.")
+    problem_solving_score: int = Field(description="Analytical thinking and approach score out of 100.")
+    system_design_score: int = Field(description="System design knowledge and architecture score out of 100.")
+    behavioral_score: int = Field(description="Behavioral and cultural fit score out of 100.")
+    detailed_feedback: str = Field(description="3-5 paragraph comprehensive feedback covering the entire interview performance.")
+    strengths: List[str] = Field(description="Top 5 demonstrated strengths with specific examples from the interview.")
+    weaknesses: List[str] = Field(description="Top 5 areas of weakness with specific examples.")
+    improvement_suggestions: List[str] = Field(description="5-7 actionable, specific improvement suggestions.")
+    learning_recommendations: List[str] = Field(description="5-7 personalized learning resources, topics, or courses to pursue.")
+
+# ==========================================
+# Interview Report Schemas
+# ==========================================
+
+class InterviewReportResult(BaseModel):
+    """Professional interview report covering all aspects of a session."""
+    executive_summary: str = Field(description="2-3 paragraph executive summary of the entire interview.")
+    communication_analysis: str = Field(description="Detailed analysis of communication style, clarity, and effectiveness.")
+    resume_match_assessment: str = Field(description="How well the candidate's interview performance matches their resume claims.")
+    hiring_recommendation: str = Field(description="Definitive hiring recommendation: Strong Hire, Hire, Lean Hire, Lean No Hire, No Hire.")
+    hiring_justification: str = Field(description="2-3 sentences justifying the hiring recommendation.")
+    personalized_learning_plan: List[str] = Field(description="5-7 step learning plan tailored to this candidate's gaps.")
+    next_action_items: List[str] = Field(description="3-5 immediate next steps the candidate should take.")
+    risk_factors: List[str] = Field(description="Any red flags or risk factors identified during the interview.")
+
+# ==========================================
+# Resume Intelligence V2 Schemas
+# ==========================================
+
+class ResumeIntelligenceV2Result(BaseModel):
+    """Extended resume intelligence with deep career and market analysis."""
+    ats_score: int = Field(description="ATS compatibility score out of 100.")
+    keyword_analysis: List[str] = Field(description="List of high-impact keywords present and their effectiveness.")
+    missing_skills: List[str] = Field(description="Critical skills missing for the target role.")
+    company_match_scores: List[dict] = Field(description="List of {company, score, reasoning} for top 5 target companies.")
+    rewrite_suggestions: List[str] = Field(description="5-7 specific bullet point rewrite suggestions with before/after examples.")
+    project_quality_analysis: List[dict] = Field(description="List of {project, score, feedback} for each project on the resume.")
+    technology_coverage: dict = Field(description="Dict of {category: [technologies]} showing coverage by area.")
+    industry_recommendations: List[str] = Field(description="3-5 industries where this candidate would be most competitive.")
+    career_recommendations: List[str] = Field(description="3-5 career path recommendations based on current trajectory.")

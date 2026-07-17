@@ -102,3 +102,37 @@ class AIMemoryService:
              content += f" Time complexity: {time_complexity}. Space complexity: {space_complexity}."
              
         await self.add_memory(db, user_id, "coding", content, meta_data={"is_success": is_success, "problem_title": problem_title})
+
+    async def retrieve_comprehensive_context(self, db: AsyncSession, user_id: uuid.UUID) -> str:
+        """
+        Retrieves a compressed, comprehensive context snapshot for the user,
+        including recent learning plans, weak topics, and interview feedback.
+        Useful for injecting into RAG prompts for AI Coach and Interview Engine.
+        """
+        stmt = (
+            select(AIMemory)
+            .where(AIMemory.user_id == user_id)
+            .where(AIMemory.memory_type.in_(["weak_topic", "interview", "coding", "evaluation", "learning_plan"]))
+            .order_by(AIMemory.created_at.desc())
+            .limit(10)
+        )
+        
+        result = await db.execute(stmt)
+        memories = result.scalars().all()
+        
+        if not memories:
+            return "No previous context available."
+            
+        context_parts = []
+        for mem in memories:
+            if mem.memory_type == "learning_plan":
+                context_parts.append(f"[CURRENT FOCUS]: {mem.content}")
+            else:
+                context_parts.append(f"[{mem.memory_type.upper()}]: {mem.content}")
+                
+        # Compress by truncating the total length if it gets too huge
+        full_context = "\n".join(context_parts)
+        if len(full_context) > 4000:
+            full_context = full_context[:4000] + "...(truncated)"
+            
+        return full_context

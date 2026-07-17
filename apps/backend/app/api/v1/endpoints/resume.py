@@ -1,3 +1,4 @@
+import asyncio
 import uuid
 import logging
 from typing import Any
@@ -13,6 +14,9 @@ from app.models.resume import (
 from app.core.storage import StorageService
 from app.core.rate_limit import limiter
 from app.services.resume_pipeline import process_resume_background
+from app.services.ai.gateway import AIGateway
+from app.services.ai.prompts.manager import PromptManager
+from app.services.ai.schemas import ResumeIntelligenceV2Result
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -202,7 +206,81 @@ async def get_resume_analysis(
         "interview_readiness": getattr(analysis, "interview_readiness", None),
     }
 
-@router.get("/{resume_id}/recommendations")
+@router.get("/{resume_id}/intelligence-v2")
+async def get_resume_intelligence_v2(
+    request: Request,
+    resume_id: uuid.UUID,
+    db: DbSession,
+    current_user: CurrentUser,
+    target_role: str = "Software Engineer",
+) -> Any:
+    """Get advanced Resume Intelligence V2 analysis."""
+    stmt = select(Resume).options(
+        selectinload(Resume.analysis),
+        selectinload(Resume.skills),
+        selectinload(Resume.experiences),
+        selectinload(Resume.projects)
+    ).where(Resume.id == resume_id)
+    resume = (await db.execute(stmt)).scalar_one_or_none()
+    
+    if not resume or resume.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Resume not found")
+        
+    analysis = resume.analysis
+    if not analysis:
+        raise HTTPException(status_code=400, detail="Resume analysis not completed yet")
+        
+    # Check if V2 fields are already populated
+    if getattr(analysis, "company_match_scores", None) and getattr(analysis, "rewrite_suggestions", None):
+        return {
+            "ats_score": getattr(analysis, "ats_score", None),
+            "keyword_analysis": getattr(analysis, "keyword_analysis", []), # Might need this field in model, using existing or mock
+            "missing_skills": getattr(analysis, "skill_gap", []),
+            "company_match_scores": getattr(analysis, "company_match_scores", []),
+            "rewrite_suggestions": getattr(analysis, "rewrite_suggestions", []),
+            "project_quality_analysis": getattr(analysis, "project_quality", []),
+            "technology_coverage": getattr(analysis, "technology_coverage", {}),
+            "industry_recommendations": getattr(analysis, "industry_recommendations", []),
+            "career_recommendations": getattr(analysis, "career_recommendations", []),
+        }
+        
+    # Otherwise generate on the fly
+    skills_summary = ", ".join([s.name for s in resume.skills])
+    exp_summary = "\\n".join([f"{e.role} at {e.company_name}: {(e.description or '')[:100]}..." for e in resume.experiences])
+    proj_summary = "\\n".join([f"{p.name}: {(p.description or '')[:100]}..." for p in resume.projects])
+    
+    prompt = PromptManager.get_prompt(
+        category="resume",
+        prompt_name="intelligence_v2",
+        version="v1",
+        resume_content=resume.content[:2000] if resume.content else "No content",
+        skills_summary=skills_summary,
+        experience_summary=exp_summary,
+        projects_summary=proj_summary,
+        target_role=target_role
+    )
+    
+    gateway = AIGateway()
+    result: ResumeIntelligenceV2Result = await asyncio.to_thread(
+        gateway.generate_structured_output,
+        prompt,
+        ResumeIntelligenceV2Result,
+        "You are a Senior Technical Recruiter and Career Coach performing advanced resume intelligence analysis."
+    )
+    
+    # Store the results
+    analysis.ats_score = result.ats_score
+    # pyrefly: ignore [missing-attribute]
+    analysis.company_match_scores = result.company_match_scores
+    analysis.rewrite_suggestions = result.rewrite_suggestions
+    analysis.project_quality = result.project_quality_analysis
+    analysis.technology_coverage = result.technology_coverage
+    analysis.industry_recommendations = result.industry_recommendations
+    analysis.career_recommendations = result.career_recommendations
+    
+    await db.commit()
+    
+    return result.model_dump()
 async def get_resume_recommendations(
     resume_id: uuid.UUID,
     db: DbSession,
@@ -238,6 +316,7 @@ async def get_resume_skills(
             "name": skill.name,
             "proficiency": skill.proficiency,
             "years_experience": skill.years_experience,
+            # pyrefly: ignore [redundant-condition]
             "category": skill.technology.category if skill.technology else None
         })
     return result

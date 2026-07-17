@@ -60,6 +60,14 @@ class ResumeAnalysis(Base):
     missing_keywords: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     learning_roadmap: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     interview_readiness: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Resume Intelligence V2 additions
+    company_match_scores: Mapped[list[dict] | None] = mapped_column(JSON, nullable=True)
+    rewrite_suggestions: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    project_quality: Mapped[list[dict] | None] = mapped_column(JSON, nullable=True)
+    technology_coverage: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+    industry_recommendations: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
+    career_recommendations: Mapped[list[str] | None] = mapped_column(JSON, nullable=True)
     
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
