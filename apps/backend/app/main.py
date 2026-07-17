@@ -59,8 +59,8 @@ def create_app() -> FastAPI:
     )
     
     app.state.limiter = limiter
-    from typing import cast, Callable, Any
-    app.add_exception_handler(RateLimitExceeded, cast(Callable[..., Any], _rate_limit_exceeded_handler))
+    # pyrefly: ignore [bad-argument-type]
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     @app.middleware("http")
     async def add_request_id_middleware(request: Request, call_next):
