@@ -37,7 +37,7 @@ test.describe('InterviewOS Candidate Journey', () => {
     await page.goto('/dashboard');
     
     // Check if dashboard loaded properly (checking for known text or headers)
-    await expect(page.getByText('Test Candidate')).toBeVisible();
+    await expect(page.getByText('Command Center')).toBeVisible();
 
     // Navigate to Interview setup
     await page.goto('/interview/setup');
