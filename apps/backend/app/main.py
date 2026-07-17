@@ -63,6 +63,16 @@ def create_app() -> FastAPI:
     # pyrefly: ignore [bad-argument-type]
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        import traceback
+        traceback.print_exc()
+        from fastapi.responses import JSONResponse
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Internal Server Error: {str(exc)}", "type": str(type(exc))}
+        )
+
     @app.middleware("http")
     async def add_request_id_middleware(request: Request, call_next):
         request_id = str(uuid.uuid4())
