@@ -297,7 +297,7 @@ async def google_callback(request: Request, response: Response, db: DbSession):
         logger.error(f"OAUTH ERROR: {e}")
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=400, detail="OAuth authorization failed")
+        raise HTTPException(status_code=400, detail=f"OAuth failed: {str(e)}")
         
     user_info = token.get('userinfo')
     if not user_info:
