@@ -1,6 +1,5 @@
 "use client";
 
-// @ts-expect-error - react-resizable-panels types missing
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { ProblemPanel } from "@/components/coding/problem-panel";
 import { AIPanel } from "@/components/coding/ai-panel";
@@ -38,7 +37,7 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
       animate={{ opacity: 1 }}
       className="h-[calc(100vh-64px)] w-full overflow-hidden flex"
     >
-      <PanelGroup direction="horizontal" className="w-full h-full">
+      <PanelGroup orientation="horizontal" className="w-full h-full">
         {/* Left Panel: Problem Description */}
         <Panel defaultSize={30} minSize={20}>
           <ProblemPanel 
@@ -81,7 +80,7 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
               )}
             </div>
           </div>
-          <PanelGroup direction="vertical">
+          <PanelGroup orientation="vertical">
             <Panel defaultSize={70} minSize={30}>
               <CodeEditor 
                 problemId={id}

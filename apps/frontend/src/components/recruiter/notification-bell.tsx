@@ -2,14 +2,14 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Bell, Check, Trash2, Calendar, Activity, Brain, UserPlus, Clock, ChevronRight } from "lucide-react";
+import { Bell, Check, Trash2, Calendar, Activity, Brain, UserPlus, Clock, ChevronRight, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useNotificationStore, NotificationType } from "@/stores/notification-store";
 import { formatDistanceToNow } from "date-fns";
 
 import React from "react";
 
-const ICONS: Record<NotificationType, React.ElementType> = {
+const ICONS: Record<NotificationType, LucideIcon> = {
   "Interview Scheduled": Calendar,
   "Candidate Status Changed": Activity,
   "AI Evaluation Ready": Brain,
