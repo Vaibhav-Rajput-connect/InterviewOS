@@ -1,7 +1,7 @@
 "use client";
 
 // @ts-expect-error - react-resizable-panels types missing
-import { Panel, PanelGroup, PanelResizeHandle } from "react-resizable-panels";
+import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import { ProblemPanel } from "@/components/coding/problem-panel";
 import { AIPanel } from "@/components/coding/ai-panel";
 import { ConsolePanel } from "@/components/coding/console-panel";
