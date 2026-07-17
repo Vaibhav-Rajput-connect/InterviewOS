@@ -46,3 +46,6 @@ jobs:
     - name: Run ESLint
       working-directory: apps/frontend
       run: npm run lint
+    - name: Build frontend
+      working-directory: apps/frontend
+      run: npm run build
