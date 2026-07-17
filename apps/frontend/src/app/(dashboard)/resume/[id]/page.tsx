@@ -177,7 +177,7 @@ export default function ResumeDashboardPage() {
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-white mb-6">Skills & Technologies</h2>
         <div className="flex flex-wrap gap-2">
-          {skills.map((skill: Record<string, unknown> & { id: string | number; name?: string; years_experience?: number }) => (
+          {skills.map((skill: { id: string | number; name?: string; years_experience?: number }) => (
             <span key={skill.id} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-sm text-slate-300">
               {skill.name} {skill.years_experience ? `(${skill.years_experience}y)` : ""}
             </span>
@@ -188,7 +188,7 @@ export default function ResumeDashboardPage() {
       <div className="mt-8">
         <h2 className="text-2xl font-bold text-white mb-6">Experience</h2>
         <div className="flex flex-col gap-4">
-          {experience.map((exp: Record<string, unknown> & { id: string | number; role?: string; company?: string; duration?: string; description?: string[] }) => (
+          {experience.map((exp: { id: string | number; role?: string; company_name?: string; start_date?: string; end_date?: string; description?: string; technologies?: string[] }) => (
             <GlassCard key={exp.id} className="p-6 border-white/10 bg-white/[0.02]">
               <div className="flex justify-between items-start mb-2">
                 <div>
