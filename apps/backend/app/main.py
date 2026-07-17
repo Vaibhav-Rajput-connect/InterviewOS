@@ -8,6 +8,7 @@ from collections.abc import AsyncGenerator
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
+from uvicorn.middleware.proxy_headers import ProxyHeadersMiddleware
 
 import uuid
 from starlette.requests import Request
@@ -81,6 +82,9 @@ def create_app() -> FastAPI:
 
     # Session Middleware (Required for Authlib OAuth)
     app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+
+    # Proxy Headers Middleware (fixes HTTP -> HTTPS redirect URI mismatch behind Render)
+    app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
 
     # API Routes
     app.include_router(api_v1_router, prefix=settings.API_V1_PREFIX)
