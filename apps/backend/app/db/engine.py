@@ -12,12 +12,19 @@ from sqlalchemy.ext.asyncio import (
 
 from app.core.config import settings
 
+engine_kwargs = {
+    "echo": settings.is_development,
+    "pool_pre_ping": True,
+    "pool_size": 10,
+    "max_overflow": 20,
+}
+
+if "neon.tech" in str(settings.DATABASE_URL):
+    engine_kwargs["connect_args"] = {"ssl": "require"}
+
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=settings.is_development,
-    pool_pre_ping=True,
-    pool_size=10,
-    max_overflow=20,
+    **engine_kwargs
 )
 
 async_session_factory = async_sessionmaker(
