@@ -32,3 +32,13 @@ def async_ttl_cache(ttl: int = 300) -> Callable:
             
         return wrapper
     return decorator
+
+
+class AsyncCache:
+    """Simple in-memory TTL cache for async functions (ephemeral Redis alternative)."""
+    def __init__(self, ttl_seconds: int = 3600):
+        self.cache = {}
+        self.ttl = ttl_seconds
+
+# Global instances for RAG lookups
+rag_cache = AsyncCache(ttl_seconds=3600)

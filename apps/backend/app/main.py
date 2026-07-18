@@ -29,10 +29,9 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     setup_logging()
 
     # Startup
-    # In production, use Alembic migrations instead
-    # from app.db.base import Base
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.create_all)
+    # Secret Key Validation
+    if settings.ENVIRONMENT != "development" and settings.SECRET_KEY == "CHANGE-ME-IN-PRODUCTION":
+        raise RuntimeError("FATAL SECURITY ERROR: SECRET_KEY is not set for production!")
 
     yield
 
@@ -66,8 +65,17 @@ def create_app() -> FastAPI:
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         import traceback
-        traceback.print_exc()
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Global Exception: {exc}", exc_info=True)
         from fastapi.responses import JSONResponse
+        
+        if settings.ENVIRONMENT != "development":
+            return JSONResponse(
+                status_code=500,
+                content={"detail": "Internal Server Error"}
+            )
+            
         return JSONResponse(
             status_code=500,
             content={"detail": f"Internal Server Error: {str(exc)}", "type": str(type(exc))}
@@ -87,7 +95,7 @@ def create_app() -> FastAPI:
         allow_origins=settings.cors_origins_list,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-        allow_headers=["*"],
+        allow_headers=["Authorization", "Content-Type", "Accept"],
     )
 
     # Session Middleware (Required for Authlib OAuth)

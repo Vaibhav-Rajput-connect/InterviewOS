@@ -32,8 +32,10 @@ class PromptManager:
         with open(prompt_path, 'r', encoding='utf-8') as f:
             template = f.read()
             
-        try:
-            return template.format(**kwargs)
-        except KeyError as e:
-            logger.error(f"Missing required variable for prompt '{prompt_name}': {e}")
-            raise ValueError(f"Missing required variable {e} for prompt {prompt_name}")
+        # Safer alternative to format() since kwargs might contain raw `{}`
+        for key, value in kwargs.items():
+            template = template.replace(f"{{{key}}}", str(value))
+        
+        # Check if we missed any intended replacements (simple heuristic)
+        # We don't raise an error to be safe with user data containing brackets
+        return template

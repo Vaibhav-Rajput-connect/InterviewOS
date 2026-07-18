@@ -1,0 +1,144 @@
+{
+  "info": {
+    "name": "InterviewOS API",
+    "description": "API Collection for InterviewOS v1.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Check Health",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"candidate@example.com\",\n  \"password\": \"securepassword\",\n  \"full_name\": \"Candidate Name\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"candidate@example.com\",\n  \"password\": \"securepassword\"\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Resume Intelligence",
+      "item": [
+        {
+          "name": "Upload Resume",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/resume/upload",
+              "host": ["{{base_url}}"],
+              "path": ["resume", "upload"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "AI Interview",
+      "item": [
+        {
+          "name": "Start Interview",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{base_url}}/interview/start",
+              "host": ["{{base_url}}"],
+              "path": ["interview", "start"]
+            },
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resume_id\": \"uuid\",\n  \"target_company\": \"Google\",\n  \"target_role\": \"Software Engineer\",\n  \"difficulty\": \"Hard\",\n  \"interview_type\": \"Technical\",\n  \"duration_minutes\": 45\n}"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000/api/v1"
+    },
+    {
+      "key": "access_token",
+      "value": "your_jwt_token_here"
+    }
+  ]
+}

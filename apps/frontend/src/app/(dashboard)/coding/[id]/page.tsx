@@ -7,7 +7,7 @@ import { ConsolePanel } from "@/components/coding/console-panel";
 import { GripVertical, GripHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 
-import { use, useState, useRef } from "react";
+import { use, useState, useRef, useCallback } from "react";
 import { ExecutionResult } from "@/lib/api/coding";
 import { useSearchParams } from "next/navigation";
 import { SubmissionModal } from "@/components/coding/submission-modal";
@@ -30,6 +30,19 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
   const searchParams = useSearchParams();
   const sessionId = searchParams.get("session") || undefined;
   const [copiedLink, setCopiedLink] = useState(false);
+
+  const handleExecuteStart = useCallback(() => setIsExecuting(true), []);
+  const handleExecuteComplete = useCallback((res: ExecutionResult | null) => {
+    setExecutionResult(res);
+    setIsExecuting(false);
+  }, []);
+  const handleSubmitStart = useCallback(() => setIsSubmitting(true), []);
+  const handleSubmitComplete = useCallback((res: unknown) => {
+    setSubmissionResult(res);
+    setIsSubmitting(false);
+    setIsModalOpen(true);
+  }, []);
+  const handleCodeChange = useCallback((code: string) => { currentCodeRef.current = code; }, []);
 
   return (
     <motion.div 
@@ -84,20 +97,13 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
             <Panel defaultSize={70} minSize={30}>
               <CodeEditor 
                 problemId={id}
-                onExecuteStart={() => setIsExecuting(true)}
-                onExecuteComplete={(res) => {
-                  setExecutionResult(res);
-                  setIsExecuting(false);
-                }}
-                onSubmitStart={() => setIsSubmitting(true)}
-                onSubmitComplete={(res) => {
-                  setSubmissionResult(res);
-                  setIsSubmitting(false);
-                  setIsModalOpen(true);
-                }}
+                onExecuteStart={handleExecuteStart}
+                onExecuteComplete={handleExecuteComplete}
+                onSubmitStart={handleSubmitStart}
+                onSubmitComplete={handleSubmitComplete}
                 isExecuting={isExecuting}
                 isSubmitting={isSubmitting}
-                onCodeChange={(code) => { currentCodeRef.current = code; }}
+                onCodeChange={handleCodeChange}
                 customTestcases={customInput}
                 sessionId={sessionId}
               />

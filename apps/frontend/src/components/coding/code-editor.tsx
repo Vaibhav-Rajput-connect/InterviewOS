@@ -39,7 +39,7 @@ const THEMES = [
 
 const FONT_SIZES = [12, 14, 16, 18, 20];
 
-export function CodeEditor({ 
+export const CodeEditor = React.memo(function CodeEditor({ 
   problemId, 
   onExecuteStart, 
   onExecuteComplete, 
@@ -47,7 +47,9 @@ export function CodeEditor({
   onSubmitComplete,
   isExecuting, 
   isSubmitting,
-  onCodeChange
+  onCodeChange,
+  customTestcases,
+  sessionId
 }: CodeEditorProps) {
   const [language, setLanguage] = useState("typescript");
   const [theme, setTheme] = useState("vs-dark");
@@ -58,6 +60,9 @@ export function CodeEditor({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSaved, setIsSaved] = useState(true);
   const settingsRef = useRef<HTMLDivElement>(null);
+  
+  const wsRef = useRef<WebSocket | null>(null);
+  const isExternalChange = useRef(false);
 
   // Default fallback code if problem boilerplate is missing
   const fallbackCode = `// Write your code here...`;
@@ -96,6 +101,40 @@ export function CodeEditor({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Real-time Collaboration WebSocket
+  useEffect(() => {
+    if (!problemId || !sessionId) return;
+    
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+    const wsProtocol = apiUrl.startsWith('https') ? 'wss' : 'ws';
+    const wsUrl = apiUrl.replace(/^https?/, wsProtocol) + `/coding/collab/ws/${problemId}/${sessionId}`;
+    
+    const ws = new WebSocket(wsUrl);
+    wsRef.current = ws;
+
+    ws.onmessage = (event) => {
+      try {
+         const data = JSON.parse(event.data);
+         if (data.type === 'code_update' && data.code !== undefined) {
+             isExternalChange.current = true;
+             setCode(data.code);
+             if (onCodeChange) onCodeChange(data.code);
+             
+             setTimeout(() => { isExternalChange.current = false; }, 50);
+         }
+      } catch (e) {
+          isExternalChange.current = true;
+          setCode(event.data);
+          if (onCodeChange) onCodeChange(event.data);
+          setTimeout(() => { isExternalChange.current = false; }, 50);
+      }
+    };
+
+    return () => {
+      ws.close();
+    };
+  }, [problemId, sessionId, onCodeChange]);
+
   // Auto-save logic
   useEffect(() => {
     if (!autoSave || isSaved) return;
@@ -115,6 +154,11 @@ export function CodeEditor({
       setUserEdited(true);
       setIsSaved(false);
       if (onCodeChange) onCodeChange(value);
+      
+      // Broadcast change to peers
+      if (!isExternalChange.current && wsRef.current?.readyState === WebSocket.OPEN) {
+          wsRef.current.send(JSON.stringify({ type: 'code_update', code: value }));
+      }
     }
   };
 
@@ -345,4 +389,4 @@ export function CodeEditor({
       </GlassCard>
     </div>
   );
-}
+});

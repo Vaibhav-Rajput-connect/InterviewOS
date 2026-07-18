@@ -15,9 +15,9 @@ class Token(BaseModel):
 
 
 class UserCreate(BaseModel):
-    email: EmailStr
-    password: str = Field(min_length=8)
-    full_name: str
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(min_length=8, max_length=128)
+    full_name: str = Field(max_length=100)
 
 
 class UserResponse(BaseModel):
@@ -33,8 +33,8 @@ class UserResponse(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    email: EmailStr
-    password: str
+    email: EmailStr = Field(max_length=255)
+    password: str = Field(max_length=128)
 
 
 class PasswordResetRequest(BaseModel):
@@ -42,5 +42,5 @@ class PasswordResetRequest(BaseModel):
 
 
 class PasswordResetConfirm(BaseModel):
-    token: str
-    new_password: str = Field(min_length=8)
+    token: str = Field(max_length=512)
+    new_password: str = Field(min_length=8, max_length=128)

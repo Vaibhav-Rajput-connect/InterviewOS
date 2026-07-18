@@ -39,8 +39,8 @@ test.describe('InterviewOS Candidate Journey', () => {
     // Check if dashboard loaded properly (checking for known text or headers)
     await expect(page.getByText('Command Center')).toBeVisible();
 
-    // Navigate to Interview setup
-    await page.goto('/interview/setup');
+    // Navigate to Resume upload page
+    await page.goto('/resume');
 
     // Mock the Resume Upload
     await page.route('**/api/v1/resume/upload', async route => {
@@ -52,9 +52,23 @@ test.describe('InterviewOS Candidate Journey', () => {
       await route.fulfill({ status: 202, json });
     });
 
-    // We can't easily upload a real file in a simple mock test without a fixture, 
-    // but we can verify the UI exists.
-    await expect(page.getByText('Upload Resume')).toBeVisible();
+    // Verify the UI exists.
+    await expect(page.getByText('Resume Upload Protocol')).toBeVisible();
+
+    // Mock the Resume Fetch for the Interview Setup Page
+    await page.route('**/api/v1/resume', async route => {
+      const json = [
+        {
+          id: '987fcdeb-51a2-43d7-9012-345678901234',
+          user_id: '123e4567-e89b-12d3-a456-426614174000',
+          parsing_status: 'completed'
+        }
+      ];
+      await route.fulfill({ status: 200, json });
+    });
+
+    // Navigate to Interview setup
+    await page.goto('/interview');
 
     // Mock the Interview Start API
     await page.route('**/api/v1/interview/start', async route => {

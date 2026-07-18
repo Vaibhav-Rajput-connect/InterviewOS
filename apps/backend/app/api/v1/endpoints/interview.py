@@ -132,8 +132,10 @@ async def generate_next_question(
             previous_history=previous_history
         )
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         logger.error(f"Failed to generate interview question: {e}")
-        raise HTTPException(status_code=500, detail="Failed to generate AI question.")
+        raise HTTPException(status_code=500, detail=f"Failed to generate AI question. Error: {str(e)}")
         
     # Save Question
     new_order = len(session.questions) + 1
@@ -182,7 +184,8 @@ async def submit_answer(
     if not session:
         raise HTTPException(status_code=404, detail="Session not found")
         
-    stmt_q = select(InterviewQuestion).where(
+    from sqlalchemy.orm import selectinload
+    stmt_q = select(InterviewQuestion).options(selectinload(InterviewQuestion.answer)).where(
         InterviewQuestion.id == question_id,
         InterviewQuestion.session_id == session_id
     )

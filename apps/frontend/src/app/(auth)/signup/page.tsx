@@ -92,7 +92,7 @@ export default function SignupPage() {
   return (
     <div className="relative min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 8], fov: 60 }} gl={{ alpha: true }}>
+        <Canvas camera={{ position: [0, 0, 8], fov: 60 }} gl={{ alpha: true }} dpr={[1, 2]} performance={{ min: 0.5 }}>
           <NeuralBackground />
         </Canvas>
       </div>

@@ -77,7 +77,8 @@ export function TopNavigation() {
           <button 
             ref={notifRef}
             onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+            aria-label="View notifications"
+            className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-white/20"
           >
             <Bell size={20} />
             <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.8)] animate-pulse" />

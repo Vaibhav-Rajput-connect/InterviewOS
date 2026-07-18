@@ -33,7 +33,7 @@ export function GlassCard({
   return (
     <motion.div
       className={cn(
-        "relative rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/[0.08] p-6 transition-all duration-500",
+        "relative rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-6 transition-all duration-500",
         hover && "hover:bg-white/[0.07] hover:border-white/[0.15]",
         glowStyles[glow],
         className

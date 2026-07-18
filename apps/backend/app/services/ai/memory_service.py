@@ -6,6 +6,7 @@ from sqlalchemy import select
 
 from app.models.ai_memory import AIMemory
 from app.services.embedding import EmbeddingService
+from app.core.cache import rag_cache
 
 logger = logging.getLogger(__name__)
 
@@ -55,32 +56,44 @@ class AIMemoryService:
     ) -> str:
         """
         Retrieves the most semantically relevant memories for a given query text.
+        Caches identical RAG vector lookups ephemerally to bypass PostgreSQL execution.
         """
+        # Create a simple cache key ignoring the `db` session
+        cache_key = f"{user_id}:{query_text}:{limit}:{str(memory_types)}"
+        
+        # Check cache
+        import time
+        now = time.time()
+        if cache_key in rag_cache.cache:
+            result, timestamp = rag_cache.cache[cache_key]
+            if now - timestamp < rag_cache.ttl:
+                logger.debug("RAG Cache HIT: Bypassing pgvector lookup.")
+                return result
+
         query_embedding = self.embedding_service.generate_embedding(query_text)
         
-        stmt = (
-            select(AIMemory)
-            .where(AIMemory.user_id == user_id)
-        )
+        # pgvector L2 distance operator `<->`
+        stmt = select(AIMemory).filter(AIMemory.user_id == user_id)
         
         if memory_types:
-            stmt = stmt.where(AIMemory.memory_type.in_(memory_types))
+            stmt = stmt.filter(AIMemory.memory_type.in_(memory_types))
             
-        # Order by cosine distance
-        stmt = stmt.order_by(AIMemory.embedding.cosine_distance(query_embedding)).limit(limit)
+        stmt = stmt.order_by(AIMemory.embedding.l2_distance(query_embedding)).limit(limit)
         
         result = await db.execute(stmt)
         memories = result.scalars().all()
         
         if not memories:
-            return "No specific past context found."
+            context = "No highly relevant past context found."
+        else:
+            context_pieces = []
+            for mem in memories:
+                context_pieces.append(f"[{mem.memory_type}]: {mem.content}")
+            context = "\n---\n".join(context_pieces)
             
-        context_chunks = []
-        for mem in memories:
-            meta = f" [Context: {mem.memory_type}]" if mem.memory_type else ""
-            context_chunks.append(f"-{meta} {mem.content}")
-            
-        return "\n".join(context_chunks)
+        # Store in cache
+        rag_cache.cache[cache_key] = (context, now)
+        return context
 
     async def ingest_interview_session(self, db: AsyncSession, user_id: uuid.UUID, session_summary: str, weak_points: List[str]):
         """

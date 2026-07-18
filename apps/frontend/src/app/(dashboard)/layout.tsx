@@ -52,8 +52,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         
         {/* Main Content Area */}
         <main
-          className={`flex-1 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] py-4 pr-4 flex flex-col ${
-            isSidebarCollapsed ? "pl-28" : "pl-72"
+          className={`flex-1 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] py-4 pl-4 pr-4 pb-24 md:pb-4 flex flex-col ${
+            isSidebarCollapsed ? "md:pl-28" : "md:pl-72"
           }`}
         >
           <TopNavigation />

@@ -35,7 +35,19 @@ class LocalSandbox(SandboxManager):
     
     def execute(self, command: list[str], cwd: str, timeout: int = 5) -> Dict:
         start_time = time.time()
+        import resource
         
+        def set_limits():
+            # Set memory limit to 256MB
+            max_mem = 256 * 1024 * 1024
+            try:
+                resource.setrlimit(resource.RLIMIT_AS, (max_mem, max_mem))
+                resource.setrlimit(resource.RLIMIT_CPU, (timeout, timeout))
+                # Prevent creation of new files / output sizing limits
+                resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024, 1024 * 1024))
+            except (ValueError, OSError):
+                pass
+                
         try:
             # Run the process
             process = subprocess.run(
@@ -43,7 +55,10 @@ class LocalSandbox(SandboxManager):
                 cwd=cwd,
                 capture_output=True,
                 text=True,
-                timeout=timeout
+                timeout=timeout,
+                preexec_fn=set_limits,
+                # Clear environment variables to prevent leaking secrets to user code
+                env={"PATH": os.environ.get("PATH", "")}
             )
             
             end_time = time.time()

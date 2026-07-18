@@ -108,12 +108,23 @@ export default function CodingDashboardPage() {
             </thead>
             <tbody>
               {isLoading ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-slate-500">
-                    <div className="w-6 h-6 border-2 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    Loading problems...
-                  </td>
-                </tr>
+                <>
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <tr key={i} className="border-b border-white/5 last:border-0">
+                      <td className="p-4"><div className="w-5 h-5 rounded-full bg-white/10 animate-pulse"></div></td>
+                      <td className="p-4">
+                        <div className="h-5 w-48 bg-white/10 rounded animate-pulse mb-2"></div>
+                        <div className="flex gap-2">
+                          <div className="h-4 w-16 bg-white/5 rounded animate-pulse"></div>
+                          <div className="h-4 w-12 bg-white/5 rounded animate-pulse"></div>
+                        </div>
+                      </td>
+                      <td className="p-4"><div className="h-5 w-16 bg-white/10 rounded animate-pulse"></div></td>
+                      <td className="p-4 hidden md:table-cell"><div className="h-2 w-full bg-white/10 rounded-full animate-pulse"></div></td>
+                      <td className="p-4 text-right"><div className="h-8 w-8 rounded-lg bg-white/10 animate-pulse ml-auto"></div></td>
+                    </tr>
+                  ))}
+                </>
               ) : displayProblems.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="p-8 text-center text-slate-500">
