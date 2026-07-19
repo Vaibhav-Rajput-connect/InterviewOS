@@ -1,11 +1,11 @@
 import os
 import uuid
 from typing import Dict, Any
-from app.services.coding.sandbox import LocalSandbox, DockerSandbox, create_workspace, cleanup_workspace
+from app.services.coding.sandbox import SandboxManager, LocalSandbox, DockerSandbox, create_workspace, cleanup_workspace
 from app.services.coding.security import SecurityValidator
 
 # Map language to file extension and execution command
-LANGUAGE_CONFIG = {
+LANGUAGE_CONFIG: Dict[str, Dict[str, Any]] = {
     "python": {
         "extension": ".py",
         "command": ["python"]
@@ -16,10 +16,8 @@ LANGUAGE_CONFIG = {
     },
     "typescript": {
         "extension": ".ts",
-        # In a real environment, you'd want ts-node or a compilation step.
-        # For simplicity, if ts-node is available globally or we use bun/deno.
-        # We'll assume npx ts-node is available, or fallback to node after tsc.
-        "command": ["npx", "ts-node"]
+        "compile_command": ["npx", "tsc"],
+        "command": ["node"]
     },
     "java": {
         "extension": ".java",
@@ -46,6 +44,7 @@ LANGUAGE_CONFIG = {
 
 class CodeRunner:
     def __init__(self):
+        self.sandbox: SandboxManager
         # Default to DockerSandbox for production security
         # Fall back to LocalSandbox only if configured (e.g. for simple local testing)
         if os.environ.get("USE_LOCAL_SANDBOX") == "true":
@@ -237,7 +236,10 @@ console.log("---TEST_RESULTS_END---");
             # Execute the code
             run_cmd = config["command"]
             if language not in ["cpp", "rust"]:
-                run_cmd = run_cmd + [filename]
+                run_file = filename
+                if language == "typescript":
+                    run_file = filename.replace(".ts", ".js")
+                run_cmd = run_cmd + [run_file]
                 
             result = self.sandbox.execute(run_cmd, cwd=workspace, timeout=5)
             

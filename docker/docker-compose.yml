@@ -38,6 +38,7 @@ services:
       PROJECT_NAME: InterviewOS
       ENVIRONMENT: development
       LOG_LEVEL: DEBUG
+      USE_LOCAL_SANDBOX: "true"
     ports:
       - "8000:8000"
     volumes:

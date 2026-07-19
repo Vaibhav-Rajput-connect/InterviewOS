@@ -38,10 +38,7 @@ class LocalSandbox(SandboxManager):
         import resource
         
         def set_limits():
-            # Set memory limit to 256MB
-            max_mem = 256 * 1024 * 1024
             try:
-                resource.setrlimit(resource.RLIMIT_AS, (max_mem, max_mem))
                 resource.setrlimit(resource.RLIMIT_CPU, (timeout, timeout))
                 # Prevent creation of new files / output sizing limits
                 resource.setrlimit(resource.RLIMIT_FSIZE, (1024 * 1024, 1024 * 1024))
@@ -127,7 +124,7 @@ class DockerSandbox(SandboxManager):
         cmd_runner = command[0] if command else "python"
         
         # Simple heuristic mapping for this architecture
-        image_name = self.DOCKER_IMAGES.get("python")
+        image_name = self.DOCKER_IMAGES["python"]
         if "node" in cmd_runner or "npx" in cmd_runner:
             image_name = self.DOCKER_IMAGES["javascript"]
         elif "java" in cmd_runner:
