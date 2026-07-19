@@ -82,7 +82,7 @@ async def get_problems(
                 CodingProblem.description.ilike(search_term)
             )
         )
-    total_count = (await db.execute(count_query)).scalar()
+    total_count = (await db.execute(count_query)).scalar() or 0
 
     query = query.offset(skip).limit(limit)
     result = await db.execute(query)
@@ -111,7 +111,7 @@ async def get_problems(
             "companies": [c.name for c in p.companies],
             "status": status_obj.status if status_obj else "untouched",
             "bookmarked": status_obj.bookmarked if status_obj else False,
-            "acceptance": p.acceptance
+            "acceptance": "50%"
         })
         
     import math

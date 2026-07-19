@@ -21,7 +21,7 @@ async def seed_data():
         # Check if we already have 300 problems
         from sqlalchemy import select, func
         result = await db.execute(select(func.count(CodingProblem.id)))
-        count = result.scalar()
+        count = result.scalar() or 0
         
         if count >= 300:
             print(f"Problems already seeded. Found {count} problems.")
