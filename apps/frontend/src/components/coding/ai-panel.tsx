@@ -91,7 +91,7 @@ export const AIPanel = React.memo(function AIPanel({ problemId, getCurrentCode }
 
   return (
     <div className="h-full flex flex-col p-2">
-      <GlassCard className="flex-1 flex flex-col overflow-hidden relative" glow="none">
+      <GlassCard className="flex-1 flex flex-col overflow-hidden relative" glow="rose">
         {/* Tabs */}
         <div className="flex items-center p-2 border-b border-white/10 shrink-0 gap-1 bg-black/20">
           <button 

@@ -62,9 +62,10 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
           />
         </Panel>
 
-        <PanelResizeHandle className="w-2 flex items-center justify-center group cursor-col-resize">
-          <div className="w-1 h-8 bg-white/10 rounded-full group-hover:bg-red-500/50 transition-colors flex items-center justify-center">
-            <GripVertical size={10} className="text-white/30 group-hover:text-red-400 opacity-0 group-hover:opacity-100" />
+        <PanelResizeHandle className="w-4 flex flex-col items-center justify-center group cursor-col-resize relative z-10">
+          <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent group-hover:via-red-500/50 transition-colors duration-300"></div>
+          <div className="absolute top-1/2 -translate-y-1/2 w-1.5 h-10 bg-white/10 rounded-full group-hover:bg-red-500 group-hover:shadow-[0_0_12px_rgba(239,68,68,0.8)] transition-all duration-300 flex items-center justify-center border border-white/5 group-hover:border-red-400">
+            <GripVertical size={10} className="text-white/30 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-300" />
           </div>
         </PanelResizeHandle>
 
@@ -109,11 +110,12 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
               />
             </Panel>
             
-            <PanelResizeHandle className="h-2 flex items-center justify-center group cursor-row-resize">
-              <div className="h-1 w-8 bg-white/10 rounded-full group-hover:bg-red-500/50 transition-colors flex items-center justify-center">
-                <GripHorizontal size={10} className="text-white/30 group-hover:text-red-400 opacity-0 group-hover:opacity-100" />
-              </div>
-            </PanelResizeHandle>
+            <PanelResizeHandle className="h-4 flex items-center justify-center group cursor-row-resize relative z-10">
+            <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-white/5 to-transparent group-hover:via-red-500/50 transition-colors duration-300"></div>
+            <div className="absolute left-1/2 -translate-x-1/2 h-1.5 w-10 bg-white/10 rounded-full group-hover:bg-red-500 group-hover:shadow-[0_0_12px_rgba(239,68,68,0.8)] transition-all duration-300 flex items-center justify-center border border-white/5 group-hover:border-red-400">
+              <GripHorizontal size={10} className="text-white/30 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-300" />
+            </div>
+          </PanelResizeHandle>
 
             <Panel defaultSize={30} minSize={10}>
               <ConsolePanel 
@@ -126,9 +128,10 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
           </PanelGroup>
         </Panel>
 
-        <PanelResizeHandle className="w-2 flex items-center justify-center group cursor-col-resize">
-          <div className="w-1 h-8 bg-white/10 rounded-full group-hover:bg-red-500/50 transition-colors flex items-center justify-center">
-            <GripVertical size={10} className="text-white/30 group-hover:text-red-400 opacity-0 group-hover:opacity-100" />
+        <PanelResizeHandle className="w-4 flex flex-col items-center justify-center group cursor-col-resize relative z-10">
+          <div className="w-[2px] h-full bg-gradient-to-b from-transparent via-white/5 to-transparent group-hover:via-red-500/50 transition-colors duration-300"></div>
+          <div className="absolute top-1/2 -translate-y-1/2 w-1.5 h-10 bg-white/10 rounded-full group-hover:bg-red-500 group-hover:shadow-[0_0_12px_rgba(239,68,68,0.8)] transition-all duration-300 flex items-center justify-center border border-white/5 group-hover:border-red-400">
+            <GripVertical size={10} className="text-white/30 group-hover:text-white opacity-0 group-hover:opacity-100 transition-all duration-300" />
           </div>
         </PanelResizeHandle>
 

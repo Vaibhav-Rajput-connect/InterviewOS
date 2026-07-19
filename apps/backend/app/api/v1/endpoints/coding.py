@@ -203,8 +203,8 @@ async def toggle_bookmark(
 @router.post("/run", response_model=ExecutionResult)
 @limiter.limit("15/minute")
 async def execute_code(
-    request: ExecutionRequest,
-    req: Request,
+    payload: ExecutionRequest,
+    request: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
@@ -212,20 +212,20 @@ async def execute_code(
     Execute code in a sandboxed environment.
     """
     test_cases = None
-    if request.custom_testcases:
-        test_cases = request.custom_testcases
-    elif request.problem_id:
+    if payload.custom_testcases:
+        test_cases = payload.custom_testcases
+    elif payload.problem_id:
         # Fetch problem test cases
-        problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
+        problem = await db.get(CodingProblem, uuid.UUID(payload.problem_id))
         if problem is not None and problem.test_cases is not None:
             test_cases = problem.test_cases  # type: ignore
 
     runner = CodeRunner()
     result = await asyncio.to_thread(
         runner.execute,
-        language=request.language,
-        code=request.code,
-        problem_id=request.problem_id,
+        language=payload.language,
+        code=payload.code,
+        problem_id=payload.problem_id,
         test_cases=test_cases  # type: ignore
     )
     
@@ -235,8 +235,8 @@ async def execute_code(
 @router.post("/submit")
 @limiter.limit("10/minute")
 async def submit_code(
-    request: ExecutionRequest,
-    req: Request,
+    payload: ExecutionRequest,
+    request: Request,
     background_tasks: BackgroundTasks,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
@@ -244,10 +244,10 @@ async def submit_code(
     """
     Execute code, run AI evaluation, save submission, and update status.
     """
-    if not request.problem_id:
+    if not payload.problem_id:
         raise HTTPException(status_code=400, detail="problem_id is required for submission")
 
-    problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
+    problem = await db.get(CodingProblem, uuid.UUID(payload.problem_id))
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
 
@@ -259,8 +259,8 @@ async def submit_code(
     submission = CodingSubmission(
         user_id=current_user.id,
         problem_id=problem.id,
-        code=request.code,
-        language=request.language,
+        code=payload.code,
+        language=payload.language,
         status="pending"
     )
     db.add(submission)
@@ -270,13 +270,13 @@ async def submit_code(
     # 2. Run Code Execution
     runner = CodeRunner()
     
-    test_cases = request.custom_testcases if request.custom_testcases else problem.test_cases
+    test_cases = payload.custom_testcases if payload.custom_testcases else problem.test_cases
 
     exec_result = await asyncio.to_thread(
         runner.execute,
-        language=request.language,
-        code=request.code,
-        problem_id=request.problem_id,
+        language=payload.language,
+        code=payload.code,
+        problem_id=payload.problem_id,
         test_cases=test_cases  # type: ignore
     )
     
@@ -288,7 +288,7 @@ async def submit_code(
     try:
         eval_result = await gateway.evaluate_code_submission(
             problem_description=problem.description,  # type: ignore
-            current_code=request.code,
+            current_code=payload.code,
             execution_result=exec_result
         )
     except Exception as e:
@@ -393,12 +393,12 @@ class ChatRequest(AssistantRequest):
 @router.post("/hint")
 @limiter.limit("5/minute")
 async def get_coding_hints(
-    request: AssistantRequest,
-    req: Request,
+    payload: AssistantRequest,
+    request: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
-    problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
+    problem = await db.get(CodingProblem, uuid.UUID(payload.problem_id))
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
         
@@ -406,7 +406,7 @@ async def get_coding_hints(
     gateway = AIGateway()
     result = await gateway.generate_coding_hints(
         problem_description=problem.description,  # type: ignore
-        current_code=request.current_code
+        current_code=payload.current_code
     )
     
     from app.models.coding import CodingHint
@@ -414,7 +414,7 @@ async def get_coding_hints(
         hint_model = CodingHint(
             user_id=current_user.id,
             problem_id=problem.id,
-            code_snapshot=request.current_code,
+            code_snapshot=payload.current_code,
             hint_text=hint
         )
         db.add(hint_model)
@@ -425,12 +425,12 @@ async def get_coding_hints(
 @router.post("/review")
 @limiter.limit("5/minute")
 async def analyze_complexity(
-    request: AssistantRequest,
-    req: Request,
+    payload: AssistantRequest,
+    request: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
-    problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
+    problem = await db.get(CodingProblem, uuid.UUID(payload.problem_id))
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
         
@@ -438,19 +438,19 @@ async def analyze_complexity(
     gateway = AIGateway()
     result = await gateway.analyze_code_complexity(
         problem_description=problem.description,  # type: ignore
-        current_code=request.current_code
+        current_code=payload.current_code
     )
     return result
 
 @router.post("/assistant/chat")
 @limiter.limit("5/minute")
 async def copilot_chat(
-    request: ChatRequest,
-    req: Request,
+    payload: ChatRequest,
+    request: Request,
     current_user: deps.CurrentUser,
     db: deps.DbSession,
 ) -> Any:
-    problem = await db.get(CodingProblem, uuid.UUID(request.problem_id))
+    problem = await db.get(CodingProblem, uuid.UUID(payload.problem_id))
     if not problem:
         raise HTTPException(status_code=404, detail="Problem not found")
         
@@ -458,9 +458,9 @@ async def copilot_chat(
     gateway = AIGateway()
     result = await gateway.chat_with_copilot(
         problem_description=problem.description,  # type: ignore
-        current_code=request.current_code,
-        user_message=request.user_message,
-        chat_history=request.chat_history
+        current_code=payload.current_code,
+        user_message=payload.user_message,
+        chat_history=payload.chat_history
     )
     return {"response": result}
 

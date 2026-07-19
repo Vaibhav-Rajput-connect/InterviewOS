@@ -29,7 +29,7 @@ export const ConsolePanel = React.memo(function ConsolePanel({ executionResult, 
 
   return (
     <div className="h-full flex flex-col p-2 pt-0">
-      <GlassCard className="flex-1 flex flex-col overflow-hidden relative" glow="none">
+      <GlassCard className="flex-1 flex flex-col overflow-hidden relative" glow="rose">
         {/* Header Tabs */}
         <div className="flex items-center gap-4 p-2 border-b border-white/10 shrink-0 bg-black/20">
           <button 
