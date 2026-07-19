@@ -69,23 +69,40 @@ async def get_problems(
     # Note: For JSON array filtering like 'topic' in 'topics', SQLAlchemy postgres dialect allows contains/has
     # For simplicity, we skip complex JSON array filtering here unless needed.
 
+    # First, get the total count of filtered problems
+    from sqlalchemy import func
+    count_query = select(func.count(CodingProblem.id))
+    if difficulty:
+        count_query = count_query.filter(CodingProblem.difficulty == difficulty)
+    if search:
+        search_term = f"%{search}%"
+        count_query = count_query.filter(
+            or_(
+                CodingProblem.title.ilike(search_term),
+                CodingProblem.description.ilike(search_term)
+            )
+        )
+    total_count = (await db.execute(count_query)).scalar()
+
     query = query.offset(skip).limit(limit)
     result = await db.execute(query)
     problems = result.scalars().all()
     
     # Also fetch the user's statuses for these problems
     problem_ids = [p.id for p in problems]
-    status_query = select(UserProblemStatus).filter(
-        UserProblemStatus.user_id == current_user.id,
-        UserProblemStatus.problem_id.in_(problem_ids)
-    )
-    status_result = await db.execute(status_query)
-    statuses = {s.problem_id: s for s in status_result.scalars().all()}
+    statuses = {}
+    if problem_ids:
+        status_query = select(UserProblemStatus).filter(
+            UserProblemStatus.user_id == current_user.id,
+            UserProblemStatus.problem_id.in_(problem_ids)
+        )
+        status_result = await db.execute(status_query)
+        statuses = {s.problem_id: s for s in status_result.scalars().all()}
     
-    response = []
+    response_items = []
     for p in problems:
         status_obj = statuses.get(p.id)
-        response.append({
+        response_items.append({
             "id": p.id,
             "title": p.title,
             "slug": p.slug,
@@ -94,9 +111,18 @@ async def get_problems(
             "companies": [c.name for c in p.companies],
             "status": status_obj.status if status_obj else "untouched",
             "bookmarked": status_obj.bookmarked if status_obj else False,
+            "acceptance": p.acceptance
         })
         
-    return response
+    import math
+    return {
+        "items": response_items,
+        "totalCount": total_count,
+        "page": (skip // limit) + 1,
+        "pageSize": limit,
+        "totalPages": math.ceil(total_count / limit) if total_count > 0 else 1
+    }
+
 
 @router.get("/problem/{id}")
 async def get_problem(

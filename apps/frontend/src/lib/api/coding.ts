@@ -17,6 +17,14 @@ export interface CodingProblem {
   acceptance?: string; // We don't have this in DB yet, but frontend expects it
 }
 
+export interface PaginatedCodingProblems {
+  items: CodingProblem[];
+  totalCount: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
 export interface ExecutionRequest {
   language: string;
   code: string;
@@ -37,13 +45,10 @@ export interface ExecutionResult {
 }
 
 export const codingApi = {
-  getProblems: async (params?: { difficulty?: string, search?: string, skip?: number, limit?: number }): Promise<CodingProblem[]> => {
+  getProblems: async (params?: { difficulty?: string, search?: string, skip?: number, limit?: number }): Promise<PaginatedCodingProblems> => {
     const { data } = await api.get("/coding/problems", { params });
-    // Add fake acceptance rate for UI
-    return data.map((p: CodingProblem) => ({
-      ...p,
-      acceptance: ["Easy", "Medium"].includes(p.difficulty) ? "65.2%" : "30.1%"
-    }));
+    // Data now returns {items, totalCount, page, pageSize, totalPages}
+    return data;
   },
   
   getProblem: async (id: string): Promise<CodingProblem> => {

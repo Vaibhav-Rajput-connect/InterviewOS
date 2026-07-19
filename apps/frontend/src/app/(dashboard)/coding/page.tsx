@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/ui/cards";
 import { Search, Filter, Bookmark, CheckCircle2, Circle, ChevronRight } from "lucide-react";
@@ -8,17 +8,29 @@ import Link from "next/link";
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { codingApi } from "@/lib/api/coding";
+import { useDebounce } from "@/hooks/use-debounce";
 
 export default function CodingDashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const debouncedSearch = useDebounce(searchQuery, 300);
   const [filterDifficulty, setFilterDifficulty] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 20;
+  
   const queryClient = useQueryClient();
 
-  const { data: problems, isLoading } = useQuery({
-    queryKey: ["coding-problems", filterDifficulty, searchQuery],
+  // Reset page to 1 when search or filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearch, filterDifficulty]);
+
+  const { data: paginatedData, isLoading } = useQuery({
+    queryKey: ["coding-problems", filterDifficulty, debouncedSearch, currentPage],
     queryFn: () => codingApi.getProblems({
       difficulty: filterDifficulty !== "All" ? filterDifficulty : undefined,
-      search: searchQuery || undefined,
+      search: debouncedSearch || undefined,
+      skip: (currentPage - 1) * pageSize,
+      limit: pageSize
     })
   });
 
@@ -29,7 +41,9 @@ export default function CodingDashboardPage() {
     }
   });
 
-  const displayProblems = problems || [];
+  const displayProblems = paginatedData?.items || [];
+  const totalPages = paginatedData?.totalPages || 1;
+  const totalCount = paginatedData?.totalCount || 0;
 
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
@@ -151,7 +165,7 @@ export default function CodingDashboardPage() {
                   </td>
                   <td className="p-4">
                     <Link href={`/coding/${p.id}`} className="font-medium text-slate-200 hover:text-white transition-colors flex items-center gap-2">
-                      {p.id}. {p.title}
+                      {p.title}
                       <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-500" />
                     </Link>
                     <div className="flex items-center gap-2 mt-1">
@@ -182,6 +196,54 @@ export default function CodingDashboardPage() {
             </tbody>
           </table>
         </div>
+        
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="p-4 border-t border-white/5 flex items-center justify-between text-sm text-slate-400">
+            <div>
+              Showing {((currentPage - 1) * pageSize) + 1} to {Math.min(currentPage * pageSize, totalCount)} of {totalCount} problems
+            </div>
+            <div className="flex items-center gap-2">
+              <button 
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-3 py-1 bg-white/5 rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Previous
+              </button>
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }).map((_, idx) => {
+                  const pageNumber = idx + 1;
+                  // Show max 5 pages logic could go here, for now just show all if small, or limit
+                  if (totalPages > 7) {
+                    if (pageNumber !== 1 && pageNumber !== totalPages && Math.abs(currentPage - pageNumber) > 1) {
+                      if (pageNumber === 2 || pageNumber === totalPages - 1) return <span key={idx}>...</span>;
+                      return null;
+                    }
+                  }
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`w-8 h-8 rounded flex items-center justify-center transition-colors ${
+                        currentPage === pageNumber ? 'bg-red-500/20 text-red-400 font-medium' : 'hover:bg-white/5'
+                      }`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-3 py-1 bg-white/5 rounded hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </GlassCard>
     </div>
   );
