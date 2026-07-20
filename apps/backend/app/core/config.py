@@ -37,6 +37,9 @@ class Settings(BaseSettings):
 
     # CORS
     CORS_ORIGINS: str = '["http://localhost:3000"]'
+    
+    # Frontend URL for callbacks
+    FRONTEND_URL: str = "http://localhost:3000"
 
     @field_validator("DATABASE_URL", mode="after")
     @classmethod

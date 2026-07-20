@@ -330,7 +330,7 @@ async def google_callback(request: Request, response: Response, db: DbSession):
     db.add(session)
     await db.commit()
 
-    frontend_url = settings.cors_origins_list[0] if settings.cors_origins_list else "https://interviewos.com"
+    frontend_url = settings.FRONTEND_URL
     redirect = RedirectResponse(url=f"{frontend_url}/auth/callback?token={access_token}")
     redirect.set_cookie(
         key="refresh_token", value=refresh_token,
