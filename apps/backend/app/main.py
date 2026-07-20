@@ -99,7 +99,12 @@ def create_app() -> FastAPI:
     )
 
     # Session Middleware (Required for Authlib OAuth)
-    app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+    app.add_middleware(
+        SessionMiddleware, 
+        secret_key=settings.SECRET_KEY,
+        same_site="lax" if settings.ENVIRONMENT == "development" else "none",
+        https_only=False if settings.ENVIRONMENT == "development" else True,
+    )
 
     # Proxy Headers Middleware (fixes HTTP -> HTTPS redirect URI mismatch behind Render)
     app.add_middleware(ProxyHeadersMiddleware, trusted_hosts="*")
