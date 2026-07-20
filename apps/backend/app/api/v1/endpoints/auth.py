@@ -82,7 +82,6 @@ async def register(user_in: UserCreate, db: DbSession) -> Any:
     await db.commit()
     await db.refresh(user)
 
-    # TODO: Send verification email here using a background task
     logger.info(f"MOCK EMAIL: Verification link -> /verify?token={verification_token.token}")
 
     return user

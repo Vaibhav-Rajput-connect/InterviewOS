@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable react-hooks/set-state-in-effect */
+"use client";
+
 import React, { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { GlassCard } from "@/components/ui/cards";
@@ -13,11 +13,10 @@ export interface CodeEditorProps {
   onExecuteStart?: () => void;
   onExecuteComplete?: (result: ExecutionResult) => void;
   onSubmitStart?: () => void;
-  onSubmitComplete?: (result: any) => void;
+  onSubmitComplete?: (result: unknown) => void;
   isExecuting?: boolean;
   isSubmitting?: boolean;
   onCodeChange?: (code: string) => void;
-  customTestcases?: string;
   sessionId?: string;
 }
 
@@ -48,7 +47,6 @@ export const CodeEditor = React.memo(function CodeEditor({
   isExecuting, 
   isSubmitting,
   onCodeChange,
-  customTestcases,
   sessionId
 }: CodeEditorProps) {
   const [language, setLanguage] = useState("typescript");
@@ -122,7 +120,7 @@ export const CodeEditor = React.memo(function CodeEditor({
              
              setTimeout(() => { isExternalChange.current = false; }, 50);
          }
-      } catch (e) {
+      } catch {
           isExternalChange.current = true;
           setCode(event.data);
           if (onCodeChange) onCodeChange(event.data);

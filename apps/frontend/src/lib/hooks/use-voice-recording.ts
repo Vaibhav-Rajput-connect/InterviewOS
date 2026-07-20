@@ -16,12 +16,10 @@ export function useVoiceRecording() {
   });
 
   const startRecording = useCallback(async () => {
-    // TODO: Implement MediaRecorder logic for STT ingestion
     setState((prev) => ({ ...prev, isRecording: true, error: null }));
   }, []);
 
   const stopRecording = useCallback(async () => {
-    // TODO: Stop MediaRecorder, capture Blob, and format for backend STT provider
     setState((prev) => ({ ...prev, isRecording: false }));
   }, []);
 

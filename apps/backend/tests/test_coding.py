@@ -46,6 +46,8 @@ def test_get_problems_empty(mock_db_session):
             mock_result.scalars().first.return_value = User(
                 id=uuid.UUID(TEST_USER_ID), email="test@example.com", is_active=True, role="candidate", is_verified=True
             )
+        elif "count" in stmt_str:
+            mock_result.scalar.return_value = 0
         elif "coding_problems" in stmt_str:
             mock_result.scalars().all.return_value = []
         return mock_result
@@ -54,7 +56,7 @@ def test_get_problems_empty(mock_db_session):
 
     response = client.get("/api/v1/coding/problems", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
-    assert response.json() == []
+    assert response.json()["items"] == []
 
 def test_get_problems_success(mock_db_session):
     token = setup_auth_mock(mock_db_session)
@@ -67,6 +69,8 @@ def test_get_problems_success(mock_db_session):
             mock_result.scalars().first.return_value = User(
                 id=uuid.UUID(TEST_USER_ID), email="test@example.com", is_active=True, role="candidate", is_verified=True
             )
+        elif "count" in stmt_str:
+            mock_result.scalar.return_value = 1
         elif "coding_problems" in stmt_str:
             mock_result.scalars().all.return_value = [
                 CodingProblem(
@@ -83,5 +87,5 @@ def test_get_problems_success(mock_db_session):
     response = client.get("/api/v1/coding/problems", headers={"Authorization": f"Bearer {token}"})
     assert response.status_code == 200
     data = response.json()
-    assert len(data) == 1
-    assert data[0]["title"] == "Two Sum"
+    assert len(data["items"]) == 1
+    assert data["items"][0]["title"] == "Two Sum"

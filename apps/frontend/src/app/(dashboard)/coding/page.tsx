@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { GlassCard } from "@/components/ui/cards";
 import { Search, Filter, Bookmark, CheckCircle2, Circle, ChevronRight } from "lucide-react";
@@ -20,9 +20,8 @@ export default function CodingDashboardPage() {
   const queryClient = useQueryClient();
 
   // Reset page to 1 when search or filter changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [debouncedSearch, filterDifficulty]);
+  // Reset page to 1 when search or filter changes
+  // Updated to reset directly in handlers to prevent set-state-in-effect warning
 
   const { data: paginatedData, isLoading } = useQuery({
     queryKey: ["coding-problems", filterDifficulty, debouncedSearch, currentPage],
@@ -86,13 +85,19 @@ export default function CodingDashboardPage() {
                 type="text"
                 placeholder="Search problems..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full bg-white/5 border border-white/10 rounded-xl py-2 pl-10 pr-4 text-sm text-white placeholder-slate-500 outline-none focus:border-red-500 transition-colors"
               />
             </div>
             <select 
               value={filterDifficulty}
-              onChange={(e) => setFilterDifficulty(e.target.value)}
+              onChange={(e) => {
+                setFilterDifficulty(e.target.value);
+                setCurrentPage(1);
+              }}
               className="bg-white/5 border border-white/10 rounded-xl py-2 px-4 text-sm text-slate-300 outline-none focus:border-red-500 transition-colors"
             >
               <option value="All">All Difficulty</option>
