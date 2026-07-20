@@ -98,10 +98,16 @@ async def login(
     result = await db.execute(select(User).filter(User.email == login_data.email))
     user = result.scalars().first()
 
-    if not user or not user.hashed_password:
+    if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
+        )
+    
+    if not user.hashed_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This account was created with Google. Please use Google Sign-In.",
         )
     
     if not verify_password(login_data.password, user.hashed_password):
@@ -284,6 +290,16 @@ async def google_login(request: Request):
         raise HTTPException(status_code=501, detail="Google OAuth not configured")
         
     redirect_uri = request.url_for('google_callback')
+    
+    # Capture the frontend origin from the Referer to redirect back correctly
+    referer = request.headers.get("referer")
+    if referer:
+        from urllib.parse import urlparse
+        parsed = urlparse(referer)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
+        if origin in settings.cors_origins_list or origin.endswith(".vercel.app") or origin.startswith("http://localhost"):
+            request.session['frontend_origin'] = origin
+            
     return await oauth.google.authorize_redirect(request, str(redirect_uri))
 
 
@@ -330,7 +346,7 @@ async def google_callback(request: Request, response: Response, db: DbSession):
     db.add(session)
     await db.commit()
 
-    frontend_url = settings.FRONTEND_URL
+    frontend_url = request.session.pop('frontend_origin', settings.FRONTEND_URL)
     redirect = RedirectResponse(url=f"{frontend_url}/auth/callback?token={access_token}")
     redirect.set_cookie(
         key="refresh_token", value=refresh_token,
