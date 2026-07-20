@@ -105,7 +105,6 @@ export default function CodingArenaPage({ params }: { params: Promise<{ id: stri
                 isExecuting={isExecuting}
                 isSubmitting={isSubmitting}
                 onCodeChange={handleCodeChange}
-                customTestcases={customInput}
                 sessionId={sessionId}
               />
             </Panel>
