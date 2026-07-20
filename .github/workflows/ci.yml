@@ -22,6 +22,8 @@ jobs:
         pip install -e ".[dev]"
     - name: Run tests
       working-directory: apps/backend
+      env:
+        GEMINI_API_KEY: dummy_key
       run: |
         pytest
     - name: Run Ruff Linting
@@ -35,8 +37,6 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install pnpm
       uses: pnpm/action-setup@v4
-      with:
-        version: 9
     - name: Use Node.js
       uses: actions/setup-node@v4
       with:
