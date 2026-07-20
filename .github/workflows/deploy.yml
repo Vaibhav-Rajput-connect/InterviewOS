@@ -16,14 +16,4 @@ jobs:
           echo "Render deploy hook not configured"
         fi
 
-  deploy-frontend:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Trigger Vercel Deployment
-      uses: amondnet/vercel-action@v25
-      with:
-        vercel-token: ${{ secrets.VERCEL_TOKEN }}
-        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-        working-directory: ./apps/frontend
-        vercel-args: '--prod'
+
