@@ -67,7 +67,10 @@ export function TopNavigation() {
       {/* Right Actions */}
       <div className="flex items-center gap-4">
         {/* Quick Actions */}
-        <button className="flex items-center gap-2 bg-gradient-to-r from-red-500/10 to-orange-500/10 hover:from-red-500/20 hover:to-orange-500/20 border border-red-500/20 rounded-xl px-4 py-2 text-sm text-red-400 transition-colors">
+        <button 
+          onClick={() => router.push('/resume')}
+          className="flex items-center gap-2 bg-gradient-to-r from-red-500/10 to-orange-500/10 hover:from-red-500/20 hover:to-orange-500/20 border border-red-500/20 rounded-xl px-4 py-2 text-sm text-red-400 transition-colors"
+        >
           <Zap size={16} className="fill-red-400/20" />
           <span>Quick Scan</span>
         </button>

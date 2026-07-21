@@ -81,15 +81,6 @@ export default function DashboardPage() {
           </h1>
           <p className="text-slate-400 mt-1">AI Systems Online. All telemetry nominal.</p>
         </div>
-        
-        {/* Profile / Notifications placeholder */}
-        <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-full bg-white/10 border border-white/20 flex items-center justify-center cursor-pointer hover:bg-white/20 transition-colors">
-            <span className="text-sm font-bold text-white">
-              {user?.full_name ? user.full_name.substring(0, 2).toUpperCase() : "VR"}
-            </span>
-          </div>
-        </div>
       </motion.header>
 
       {/* Main Grid Layout */}
