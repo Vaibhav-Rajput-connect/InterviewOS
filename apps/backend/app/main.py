@@ -28,9 +28,12 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan events."""
     setup_logging()
 
+    import os
+    is_production = settings.ENVIRONMENT != "development" or os.getenv("RENDER") is not None
+
     # Startup
     # Secret Key Validation
-    if settings.ENVIRONMENT != "development" and settings.SECRET_KEY == "CHANGE-ME-IN-PRODUCTION":
+    if is_production and settings.SECRET_KEY == "CHANGE-ME-IN-PRODUCTION":
         raise RuntimeError("FATAL SECURITY ERROR: SECRET_KEY is not set for production!")
 
     yield
@@ -89,6 +92,9 @@ def create_app() -> FastAPI:
         response.headers["X-Request-ID"] = request_id
         return response
 
+    import os
+    is_production = settings.ENVIRONMENT != "development" or os.getenv("RENDER") is not None
+
     # CORS — restrict methods to only those we actually use
     app.add_middleware(
         CORSMiddleware,
@@ -103,8 +109,8 @@ def create_app() -> FastAPI:
     app.add_middleware(
         SessionMiddleware, 
         secret_key=settings.SECRET_KEY,
-        same_site="lax" if settings.ENVIRONMENT == "development" else "none",
-        https_only=False if settings.ENVIRONMENT == "development" else True,
+        same_site="lax" if not is_production else "none",
+        https_only=False if not is_production else True,
     )
 
     # Proxy Headers Middleware (fixes HTTP -> HTTPS redirect URI mismatch behind Render)
