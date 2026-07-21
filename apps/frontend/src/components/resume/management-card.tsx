@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileTextIcon, DownloadIcon, Trash2Icon, EyeIcon } from "lucide-react";
+import { FileTextIcon, Trash2Icon, EyeIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import apiClient from "@/lib/api-client";
@@ -45,26 +45,6 @@ export function ResumeManagementCard({
       setError(err?.response?.data?.detail || "Failed to delete resume.");
       setIsDeleting(false);
       setShowConfirm(false);
-    }
-  };
-
-  const handleDownload = async () => {
-    try {
-      // The API requires Auth header, so we use apiClient to fetch the blob
-      const response = await apiClient.get(`/resume/${resumeId}/download`, {
-        responseType: 'blob',
-      });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', title || 'resume');
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      console.error("Failed to download resume:", err);
-      setError("Failed to download resume.");
     }
   };
 
@@ -136,21 +116,13 @@ export function ResumeManagementCard({
             </div>
           </motion.div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
             <button
               onClick={() => router.push(`/resume/${resumeId}`)}
               className="flex items-center justify-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium transition-colors"
             >
               <EyeIcon size={18} />
               View Analysis
-            </button>
-            
-            <button
-              onClick={handleDownload}
-              className="flex items-center justify-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium transition-colors"
-            >
-              <DownloadIcon size={18} />
-              Download
             </button>
             
             <button
