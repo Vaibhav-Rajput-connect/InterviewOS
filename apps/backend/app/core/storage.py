@@ -27,3 +27,19 @@ class StorageService:
     @staticmethod
     def get_file_path(filename: str) -> Path:
         return UPLOAD_DIR / filename
+
+    @staticmethod
+    def delete_file(filepath_str: str) -> bool:
+        """
+        Deletes a file from local storage.
+        """
+        if not filepath_str:
+            return False
+        try:
+            path = Path(filepath_str)
+            if path.exists() and path.is_file():
+                path.unlink()
+                return True
+        except Exception:
+            pass
+        return False

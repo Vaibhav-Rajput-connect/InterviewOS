@@ -3,6 +3,7 @@ import uuid
 import logging
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status, BackgroundTasks, Request
+from fastapi.responses import FileResponse
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 
@@ -59,6 +60,15 @@ async def upload_resume(
     secure_filename = f"{current_user.id}_{uuid.uuid4().hex}.{file_ext}"
     
     file_path = await StorageService.save_upload_file(file, secure_filename)
+
+    # Delete any existing resumes for this user to enforce 1-resume policy
+    stmt = select(Resume).where(Resume.user_id == current_user.id)
+    existing_resumes = (await db.execute(stmt)).scalars().all()
+    for er in existing_resumes:
+        if er.file_url:
+            StorageService.delete_file(er.file_url)
+        await db.delete(er)
+    await db.commit()
 
     new_resume = Resume(
         user_id=current_user.id,
@@ -129,6 +139,49 @@ async def get_resume_status(
         "status": resume.parsing_status,
         "is_parsed": resume.is_parsed
     }
+
+@router.delete("/{resume_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_resume(
+    resume_id: uuid.UUID,
+    db: DbSession,
+    current_user: CurrentUser,
+) -> None:
+    """Delete a resume and its associated file securely."""
+    resume = await db.get(Resume, resume_id)
+    if not resume or resume.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Resume not found")
+        
+    if resume.file_url:
+        StorageService.delete_file(resume.file_url)
+        
+    await db.delete(resume)
+    await db.commit()
+
+@router.get("/{resume_id}/download")
+@limiter.limit("5/minute")
+async def download_resume(
+    request: Request,
+    resume_id: uuid.UUID,
+    db: DbSession,
+    current_user: CurrentUser,
+) -> Any:
+    """Download the actual resume file."""
+    resume = await db.get(Resume, resume_id)
+    if not resume or resume.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Resume not found")
+        
+    if not resume.file_url:
+        raise HTTPException(status_code=404, detail="Resume file not found")
+        
+    import os
+    if not os.path.exists(resume.file_url):
+        raise HTTPException(status_code=404, detail="Resume file is missing from storage")
+        
+    return FileResponse(
+        path=resume.file_url,
+        filename=resume.title,
+        media_type=f"application/{resume.file_type}" if resume.file_type == "pdf" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+    )
 
 @router.get("/{resume_id}")
 async def get_resume_overview(
