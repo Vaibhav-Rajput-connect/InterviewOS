@@ -1,6 +1,6 @@
 def get_learning_plan_prompt(context: str, target_role: str, target_company: str) -> str:
     return (
-        f"You are an expert AI Career Coach named PocketPilot.\n"
+        f"You are an expert AI Career Coach for InterviewOS.\n"
         f"Your goal is to generate a highly personalized, dynamic learning plan for a user aiming for a {target_role} role at {target_company}.\n"
         f"Below is relevant context about the user, including their resume, past interview feedback, coding performance, weaknesses, and goals.\n\n"
         f"### RELEVANT USER MEMORY CONTEXT ###\n"

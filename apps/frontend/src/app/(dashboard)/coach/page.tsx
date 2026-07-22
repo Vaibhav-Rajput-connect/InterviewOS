@@ -91,7 +91,7 @@ export default function AICoachPage() {
         </div>
         <div>
           <h1 className="text-xl font-bold text-white flex items-center gap-2">
-            PocketPilot <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-medium">Online</span>
+            InterviewOS AI Career Coach <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-medium">Online</span>
           </h1>
           <p className="text-sm text-slate-400">Your personalized AI Career Mentor</p>
         </div>
@@ -195,7 +195,7 @@ export default function AICoachPage() {
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Ask PocketPilot anything..."
+          placeholder="Ask InterviewOS AI Career Coach anything..."
           className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-5 pr-14 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-all"
           disabled={isLoading}
         />
