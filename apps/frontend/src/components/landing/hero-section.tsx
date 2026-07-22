@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ScrollIndicator } from "@/components/ui/section";
-import { ArrowRightIcon, PlayIcon } from "@/components/ui/icons";
+import { ArrowRightIcon } from "@/components/ui/icons";
 
 export function HeroSection() {
   return (
@@ -88,10 +88,6 @@ export function HeroSection() {
               <ArrowRightIcon size={18} />
             </Button>
           </Link>
-          <Button size="lg" variant="secondary">
-            <PlayIcon size={16} />
-            Watch Demo
-          </Button>
         </motion.div>
       </div>
 
