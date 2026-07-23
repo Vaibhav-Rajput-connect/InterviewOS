@@ -44,7 +44,23 @@ export interface ExecutionResult {
   failed_count?: number;
 }
 
+export interface CodingStats {
+  total_solved: number;
+  total_problems: number;
+  easy_solved: number;
+  easy_total: number;
+  medium_solved: number;
+  medium_total: number;
+  hard_solved: number;
+  hard_total: number;
+}
+
 export const codingApi = {
+  getStats: async (): Promise<CodingStats> => {
+    const { data } = await api.get("/coding/stats");
+    return data;
+  },
+
   getProblems: async (params?: { difficulty?: string, search?: string, skip?: number, limit?: number }): Promise<PaginatedCodingProblems> => {
     const { data } = await api.get("/coding/problems", { params });
     // Data now returns {items, totalCount, page, pageSize, totalPages}

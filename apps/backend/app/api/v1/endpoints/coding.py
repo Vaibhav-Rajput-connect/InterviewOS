@@ -37,6 +37,51 @@ class ExecutionResult(BaseModel):
 router = APIRouter()
 
 
+@router.get("/stats")
+async def get_coding_stats(
+    db: deps.DbSession,
+    current_user: deps.CurrentUser,
+) -> Any:
+    """
+    Get coding stats for the current user: total solved, easy/medium/hard counts, and total problems.
+    """
+    from sqlalchemy import func
+
+    # Total problems by difficulty
+    total_query = select(
+        CodingProblem.difficulty,
+        func.count(CodingProblem.id)
+    ).group_by(CodingProblem.difficulty)
+    total_result = await db.execute(total_query)
+    total_by_difficulty = {row[0]: row[1] for row in total_result.all()}
+
+    # User solved counts by difficulty
+    solved_query = (
+        select(CodingProblem.difficulty, func.count(UserProblemStatus.id))
+        .join(CodingProblem, UserProblemStatus.problem_id == CodingProblem.id)
+        .where(
+            UserProblemStatus.user_id == current_user.id,
+            UserProblemStatus.status == "solved"
+        )
+        .group_by(CodingProblem.difficulty)
+    )
+    solved_result = await db.execute(solved_query)
+    solved_by_difficulty = {row[0]: row[1] for row in solved_result.all()}
+
+    total_solved = sum(solved_by_difficulty.values())
+    total_problems = sum(total_by_difficulty.values())
+
+    return {
+        "total_solved": total_solved,
+        "total_problems": total_problems,
+        "easy_solved": solved_by_difficulty.get("Easy", 0),
+        "easy_total": total_by_difficulty.get("Easy", 0),
+        "medium_solved": solved_by_difficulty.get("Medium", 0),
+        "medium_total": total_by_difficulty.get("Medium", 0),
+        "hard_solved": solved_by_difficulty.get("Hard", 0),
+        "hard_total": total_by_difficulty.get("Hard", 0),
+    }
+
 @router.get("/problems")
 async def get_problems(
     db: deps.DbSession,

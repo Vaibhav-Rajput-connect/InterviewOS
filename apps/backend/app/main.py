@@ -36,6 +36,66 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     if is_production and settings.SECRET_KEY == "CHANGE-ME-IN-PRODUCTION":
         raise RuntimeError("FATAL SECURITY ERROR: SECRET_KEY is not set for production!")
 
+    # Auto-seed coding problems if the table is empty
+    try:
+        from app.db.engine import async_session_factory
+        from app.models.coding import CodingProblem, ProblemTag, ProblemCompany
+        from sqlalchemy import select, func
+        import json
+        import pathlib
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        async with async_session_factory() as db:
+            result = await db.execute(select(func.count(CodingProblem.id)))
+            count = result.scalar() or 0
+
+            if count == 0:
+                logger.info("No coding problems found. Auto-seeding...")
+                json_path = pathlib.Path(__file__).resolve().parent.parent / "generated_problems.json"
+                if json_path.exists():
+                    with open(json_path, "r") as f:
+                        problems_data = json.load(f)
+
+                    db_problems = []
+                    for p_data in problems_data:
+                        p = CodingProblem(
+                            title=p_data["title"],
+                            slug=p_data["slug"],
+                            difficulty=p_data["difficulty"],
+                            description=p_data["description"],
+                            constraints=p_data.get("constraints"),
+                            examples=p_data.get("examples"),
+                            test_cases=p_data.get("test_cases"),
+                            boilerplate=p_data.get("boilerplate"),
+                        )
+                        db_problems.append(p)
+
+                    db.add_all(db_problems)
+                    await db.flush()
+
+                    all_tags = []
+                    all_companies = []
+                    for idx, p_data in enumerate(problems_data):
+                        p_id = db_problems[idx].id
+                        for t in p_data.get("tags", []):
+                            all_tags.append(ProblemTag(problem_id=p_id, name=t))
+                        for c in p_data.get("companies", []):
+                            all_companies.append(ProblemCompany(problem_id=p_id, name=c))
+
+                    db.add_all(all_tags)
+                    db.add_all(all_companies)
+                    await db.commit()
+                    logger.info(f"Successfully seeded {len(db_problems)} coding problems.")
+                else:
+                    logger.warning(f"generated_problems.json not found at {json_path}")
+            else:
+                logger.info(f"Coding problems already seeded ({count} found). Skipping.")
+    except Exception as e:
+        import logging
+        logging.getLogger(__name__).error(f"Failed to auto-seed coding problems: {e}")
+
     yield
 
     # Shutdown
