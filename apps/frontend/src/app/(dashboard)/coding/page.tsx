@@ -44,6 +44,11 @@ export default function CodingDashboardPage() {
   const totalPages = paginatedData?.totalPages || 1;
   const totalCount = paginatedData?.totalCount || 0;
 
+  const { data: stats } = useQuery({
+    queryKey: ["coding-stats"],
+    queryFn: () => codingApi.getStats(),
+  });
+
   return (
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       {/* Header section */}
@@ -53,12 +58,7 @@ export default function CodingDashboardPage() {
           <p className="text-slate-400">Master algorithmic challenges with an AI-assisted IDE.</p>
         </div>
       </div>
-  const { data: stats } = useQuery({
-    queryKey: ["coding-stats"],
-    queryFn: () => codingApi.getStats(),
-  });
-
-      {/* Progress Cards */}
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <GlassCard className="p-4 flex flex-col items-center justify-center text-center">
           <div className="text-3xl font-bold text-white mb-1">{stats?.total_solved ?? 0}</div>

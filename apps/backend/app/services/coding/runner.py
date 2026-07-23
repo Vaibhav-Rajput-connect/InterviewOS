@@ -47,7 +47,7 @@ class CodeRunner:
         self.sandbox: SandboxManager
         # Default to DockerSandbox for production security
         # Fall back to LocalSandbox only if configured (e.g. for simple local testing)
-        if os.environ.get("USE_LOCAL_SANDBOX") == "true":
+        if os.environ.get("USE_LOCAL_SANDBOX") == "true" or os.environ.get("RENDER") is not None:
             self.sandbox = LocalSandbox()
         else:
             self.sandbox = DockerSandbox()
