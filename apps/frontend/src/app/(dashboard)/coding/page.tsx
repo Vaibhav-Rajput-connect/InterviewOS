@@ -58,7 +58,6 @@ export default function CodingDashboardPage() {
           <p className="text-slate-400">Master algorithmic challenges with an AI-assisted IDE.</p>
         </div>
       </div>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <GlassCard className="p-4 flex flex-col items-center justify-center text-center">
           <div className="text-3xl font-bold text-white mb-1">{stats?.total_solved ?? 0}</div>
